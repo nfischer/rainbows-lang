@@ -1,0 +1,30 @@
+{
+  "name": "rainbows",
+  "version": "0.0.1",
+  "description": "The rainbows programming language",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "ohm-builder.js src/index.generator.html index.html",
+    "build:watch": "watch 'npm run build' src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nfischer/rainbows.git"
+  },
+  "keywords": [
+    "rainbows",
+    "language",
+    "lang"
+  ],
+  "author": "Nate Fischer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nfischer/rainbows/issues"
+  },
+  "homepage": "https://github.com/nfischer/rainbows#readme",
+  "devDependencies": {
+    "ohm-builder": "^0.3.0",
+    "watch": "^0.18.0"
+  }
+}

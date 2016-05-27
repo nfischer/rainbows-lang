@@ -1,0 +1,24 @@
+/* Take out the old codemirror styling */
+.cm-comment {
+  color: darkcyan !important;
+}
+.cm-variable, .cm-variable-2, .cm-keyword, .cm-s-default, .cm-def {
+  color: grey !important;
+}
+
+/* Now add in rainbows types */
+.rb-type-string {
+  color: red !important;
+}
+.rb-type-int {
+  color: blue !important;
+}
+.rb-type-float {
+  color: orange !important;
+}
+.rb-type-dict {
+  color: purple !important;
+}
+.rb-type-list {
+  color: green !important;
+}
