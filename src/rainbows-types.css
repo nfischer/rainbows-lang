@@ -25,3 +25,22 @@
 .rb-type-list {
   color: green !important;
 }
+
+.rb-arg-type-bool {
+  border-bottom: 0.2em solid #CE63A1 !important;
+}
+.rb-arg-type-string {
+  border-bottom: 0.2em solid red !important;
+}
+.rb-arg-type-int {
+  border-bottom: 0.2em solid blue !important;
+}
+.rb-arg-type-float {
+  border-bottom: 0.2em solid orange !important;
+}
+.rb-arg-type-dict {
+  border-bottom: 0.2em solid purple !important;
+}
+.rb-arg-type-list {
+  border-bottom: 0.2em solid green !important;
+}

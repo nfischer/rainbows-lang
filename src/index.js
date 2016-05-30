@@ -14,26 +14,30 @@ var defaultEnv = {
 
 // This will modify the given DOM node to be styled after the given rainbows
 // type
-function addType(node, type) {
+function addType(node, type, opts) {
+  opts = opts || {};
   if (type.type === 'fun') {
     type = type.ret;
   } else if (type.type) {
     type = type.type;
   }
-
-  // because we can't see things above the screen
-  var lineNum = domNodeToLineNumber(node);
-  node.addClass('hint--' + (lineNum > 2 ? 'top' : 'bottom'));
-  node.addClass('hint--rounded');
-  node.addClass('hint--bounce');
-  node.attr('aria-label', type);
-
   // add type info & remove old type info
-  var m = node.attr('class').match(/^(.*\S*)\s+rb-type-\S+(.*)$/);
-  if (m)
-    node.attr('class', m[1] + m[2]);
-  node.addClass('rb-type-' + type);
+  var regex = RegExp('^(.*\\S*)\\s+rb-' +
+              (opts.underline ? 'arg-' : '') +
+              'type-\\S+(.*)$');
+  var m = node.attr('class')
+  m = m && m.match(regex);
+  if (m) node.attr('class', m[1] + m[2]);
+  node.addClass('rb-' + (opts.underline ? 'arg-' : '') + 'type-' + type);
 
+  if (!opts.underline) {
+    // because we can't see things above the screen
+    var lineNum = domNodeToLineNumber(node);
+    node.addClass('hint--' + (lineNum > 2 ? 'top' : 'bottom'));
+    node.addClass('hint--rounded');
+    node.addClass('hint--bounce');
+    node.attr('aria-label', type);
+  }
   return node;
 }
 
@@ -82,10 +86,28 @@ function setEnv(token, value) {
   }
 }
 
+function underlineArguments(funName, line, argTypes) {
+  var k = -1;
+  if (!argTypes) return;
+  line.children().each(function(a, b) {
+    var node = $(b);
+    if (k < 0 && node.text() === funName) {
+      k++;
+      return;
+    }
+    if (k >= argTypes.length) return;
+    if (k >= 0 ) {
+      addType(node, { type: argTypes[k] } , { underline: true});
+      k++;
+    }
+  });
+}
+
 function makeTypedFun(token, lineNode) {
   var oldType = getEnv(token);
   var myArgs = lineNode.text().match(RegExp(token + '\\(([^)]*)\\)'))[1].split(/,\s*/);
   var myArgTypes = myArgs.map(x => getEnv(x));
+  underlineArguments(token, lineNode, myArgTypes);
 
   env[token] = {
     type: 'fun',
@@ -114,6 +136,9 @@ function appendTypeClass(originalClassName) {
       addType($(this), getEnv(output));
     } else {
       addType($(this), getEnv(output));
+      if ($(this).parent().text().match($(this).text() + '\s*\\(')) {
+        underlineArguments($(this).text(), $(this).parent(), env[$(this).text()].args);
+      }
     }
   });
 }
@@ -165,7 +190,7 @@ $(document).ready(function() {
   });
   var output = $('.codemirror-textarea')[1];
   jscode = CodeMirror.fromTextArea(output, {
-    mode: 'javascript',
+    mode: false, // don't actually parse this text
     readOnly: true,
     lineNumbers: true
   });
@@ -215,7 +240,7 @@ function convertNode(node) {
   myclass = myclass && myclass.match(/rb-type-(\S+)/);
   var ret = node.text();
   if (myclass) {
-    var wrapper = 'ã' + myclass[1] + 'ã';
+    var wrapper = '~' + myclass[1] + '~';
     return wrapper + ret + wrapper;
   } else {
     return ret === '\u200b' ? '' : ret;

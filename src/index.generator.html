@@ -14,7 +14,17 @@
 <link rel="stylesheet" type="text/css" href="src/main.css">
 <script type="text/javascript" src="src/index.js"></script>
 <script type="text/javascript" src="src/rb-examples.js"></script>
+<script type="text/javascript" src="lib/ohm/dist/ohm.min.js"></script>
 <script type="text/ohm-js" src="src/rainbows.ohm"></script>
+<script type="text/javascript">
+  var rbGrammar = ohm.grammarFromScriptElement();
+
+  var m = rbGrammar.match("~int~foo + 3~foo~");
+  if (m.succeeded())
+    console.log('hi');
+  else
+    console.log('bye');
+</script>
 <script type="text/javascript">
   var updateSlider;
   $(document).ready(function() {
