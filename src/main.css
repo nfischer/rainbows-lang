@@ -2,6 +2,10 @@
   font-family: GoodDog;
   src: url("../fonts/GoodDog-regular/GoodDog.otf") format("opentype");
 }
+button {
+  margin: 5px;
+  padding: 5px;
+}
 #msg {
   font-size: 24px;
   text-align: left;
