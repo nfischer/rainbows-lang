@@ -18,35 +18,37 @@
   var updateSlider;
   $(document).ready(function() {
     editor.setValue(rbExamples[0].code);
+    env = Object.assign({}, defaultEnv); // copy the default environment
     // Add buttons for the other examples
     var table = document.getElementById('main-table');
     var row = table.insertRow(1);
     var mydiv = document.createElement('div');
     row.appendChild(mydiv);
-
     rbExamples.forEach(function(ex) {
       var button = document.createElement('button');
       button.appendChild(document.createTextNode(ex.name));
       mydiv.appendChild(button);
       $(button).click(function() {
+        env = Object.assign({}, defaultEnv); // copy the default environment
         editor.setValue(ex.code);
       });
     });
-    //button = document.createElement('button');
-    //button.appendChild(document.createTextNode('hello2'));
-    //mydiv.appendChild(button);
   });
   $(function() {
     var rbTypeList = ['no type', 'string', 'int', 'float', 'bool', 'list', 'dict'];
     var rbColorList = rbTypeList.map(x => $('.rb-type-' + x).css('color') || $('.cm-s-default').css('color'));
     $('.ui-state-default').css('background', $('.cm-s-default').css('color'));
     $('.ui-widget-content').css('background', '#E0E9EC');
-    var node = {};
+    var node = {}; // hack: use an object here, because of scoping issues
     updateSlider = function (event, ui) {
       var myType = rbTypeList[ui.value];
       node.value.css('background', rbColorList[ui.value]);
+
+      // Remember the user's type selection
       setEnv(window.currentToken, (myType === 'no type' ? 'unknown' : myType));
-      main(); // infer types, but now with this remembered type
+
+      addType(node.value, myType); // show the link hint for the slider UI
+      main(); // infer types, but now we'll remember the user's manual change
     }
     $('#slider-1').slider({
       min: 0,

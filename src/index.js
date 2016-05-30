@@ -1,7 +1,16 @@
 var editor;
 var jscode;
-// these are fake initializations! TODO: make this empty
-env = {};
+
+// TODO: actually check for these built-ins
+var defaultEnv = {
+  range:     { type: 'list' },
+  raw_input: { type: 'fun',
+               ret: 'string',
+               args: [ 'string' ] },
+  '*.join':  { type: 'fun',
+               ret: 'string',
+               args: [] },
+};
 
 // This will modify the given DOM node to be styled after the given rainbows
 // type
@@ -16,6 +25,7 @@ function addType(node, type) {
   var lineNum = domNodeToLineNumber(node);
   node.addClass('hint--' + (lineNum > 2 ? 'top' : 'bottom'));
   node.addClass('hint--rounded');
+  node.addClass('hint--bounce');
   node.attr('aria-label', type);
 
   // add type info & remove old type info
