@@ -26,5 +26,8 @@
   "devDependencies": {
     "ohm-builder": "^0.3.0",
     "watch": "^0.18.0"
+  },
+  "directories": {
+    "doc": "doc"
   }
 }

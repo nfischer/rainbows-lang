@@ -51,4 +51,16 @@ print getLength("hello world")
 print getLength(['h', 'e', 'l', 'l', 'o'])
 `,
 },
+{
+  name: 'string concatenation',
+  code:
+`'hello' + 'world'
+`,
+},
+{
+  name: 'integer addition',
+  code:
+`1 + 3
+`,
+},
 ];
