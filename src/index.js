@@ -4,11 +4,35 @@ var jscode;
 env = {};
 
 function addType(node, type) {
+  // because we can't see things above the screen
+  var lineNum = domNodeToLineNumber(node);
+  node.addClass('hint--' + (lineNum > 2 ? 'top' : 'bottom'));
+  node.addClass('hint--rounded');
+
+  // add type info
   node.addClass('rb-type-' + type);
-  node.addClass('hint--top');
   node.attr('aria-label', type);
   return node;
 }
+
+function domNodeToLineNumber(node) {
+  // go up until we get to ".CodeMirror-line"
+  // then go up one more, and look at the text() of the firstChild
+  var x = node;
+  while (!x.hasClass('CodeMirror-line'))
+    x = x.parent();
+  try {
+    x.parent().children('.CodeMirror-gutter-wrapper').each(function () {
+      var ret = parseInt($(this).text());
+      if (ret.toString() === $(this).text())
+        throw ret;
+      });
+  } catch (e) {
+    return e;
+  }
+  return null;
+}
+
 function appendTypeClass(originalClassName) {
   $(originalClassName).each(function() {
     var output = $(this).text();
@@ -34,7 +58,8 @@ function appendTypeClass(originalClassName) {
   });
 }
 function main() {
-  env = {};
+  // TODO: clear out `env` for any token that isn't currently present
+
   // literals
   appendTypeClass('.cm-number');
   appendTypeClass('.cm-string');
@@ -81,12 +106,11 @@ $(document).ready(function(){
     lineNumbers: true
   });
 
-  editor.on('change', delayedMain);
+  editor.on('change', function() {
+    setTimeout(main, 1);
+  });
   main();
 });
-function delayedMain() { // a total hack!
-  setTimeout(main, 1);
-}
 function selectAll(id) {
   document.getElementById(id).select();
 }
