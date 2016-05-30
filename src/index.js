@@ -3,24 +3,36 @@ var jscode;
 // these are fake initializations! TODO: make this empty
 env = {};
 
+// This will modify the given DOM node to be styled after the given rainbows
+// type
 function addType(node, type) {
+  if (type.type === 'fun') {
+    type = type.ret;
+  } else if (type.type) {
+    type = type.type;
+  }
+
   // because we can't see things above the screen
   var lineNum = domNodeToLineNumber(node);
   node.addClass('hint--' + (lineNum > 2 ? 'top' : 'bottom'));
   node.addClass('hint--rounded');
-
-  // add type info
-  node.addClass('rb-type-' + type);
   node.attr('aria-label', type);
+
+  // add type info & remove old type info
+  var m = node.attr('class').match(/^(.*\S*)\s+rb-type-\S+(.*)$/);
+  if (m)
+    node.attr('class', m[1] + m[2]);
+  node.addClass('rb-type-' + type);
+
   return node;
 }
 
 function domNodeToLineNumber(node) {
-  // go up until we get to ".CodeMirror-line"
-  // then go up one more, and look at the text() of the firstChild
-  var x = node;
-  while (!x.hasClass('CodeMirror-line'))
-    x = x.parent();
+  // go up until we get to ".CodeMirror-line"'s parent and look at the text()
+  // of the firstChild
+  var x = node.closest('.CodeMirror-line');
+  if (!x)
+    return null;
   try {
     x.parent().children('.CodeMirror-gutter-wrapper').each(function () {
       var ret = parseInt($(this).text());
@@ -33,16 +45,49 @@ function domNodeToLineNumber(node) {
   return null;
 }
 
+// TODO: figure out how to get the real DOM-node here
+function getWordUnderCursor() {
+  var word = editor.findWordAt(editor.getCursor());
+  return editor.getRange(word.anchor, word.head);
+}
+
+function getEnv(token) {
+  if (!env[token])
+    return 'unknown';
+  else if (!env[token].type)
+    return 'unknown';
+  else if (env[token].ret)
+    return env[token].ret;
+  else
+    return env[token].type;
+}
+
+function setEnv(token, value) {
+  if (env[token] && env[token].type === 'fun')
+    env[token].ret = value;
+  else {
+    env[token] = {
+      type: value,
+    };
+  }
+}
+
+function makeTypedFun(token, lineNode) {
+  var oldType = getEnv(token);
+  var myArgs = lineNode.text().match(RegExp(token + '\\(([^)]*)\\)'))[1].split(/,\s*/);
+  var myArgTypes = myArgs.map(x => getEnv(x));
+
+  env[token] = {
+    type: 'fun',
+    ret: oldType,
+    args: myArgTypes,
+  };
+}
+
+
 function appendTypeClass(originalClassName) {
   $(originalClassName).each(function() {
     var output = $(this).text();
-    var oldClass;
-    try {
-      if (oldClass = $(this).attr('class').match(/rb-type-\S+/)[0]) {
-        $(this).removeClass(oldClass);
-      }
-    } catch(e) {
-    }
     if (originalClassName === '.cm-number') {
       if ($(this).text().match(/.*\..*/))
         addType($(this), 'float');
@@ -52,8 +97,13 @@ function appendTypeClass(originalClassName) {
       addType($(this), 'bool');
     } else if (originalClassName === '.cm-string') {
       addType($(this), 'string');
-    } else if (env[output]) {
-      addType($(this), env[output]);
+    } else if (originalClassName === '.cm-def') {
+      if ($(this).parent().text().match(output + ' *\\(')) {
+        makeTypedFun(output, $(this).parent());
+      }
+      addType($(this), getEnv(output));
+    } else {
+      addType($(this), getEnv(output));
     }
   });
 }
@@ -79,16 +129,14 @@ function main() {
     try {
       var typeRHS = $(this).next().attr('class').match(/rb-type-(\S+)/)[1];
     } catch(e) {
-      typeRHS = env[$(this).next().text()];
+      typeRHS = getEnv($(this).next().text());
     }
-    if (typeRHS === undefined)
-      return;
     var text = $(this).prev().text();
-    if (env[text] && env[text] !== typeRHS)
-      console.warn('warning: types ' + env[text] + ' and ' + typeRHS + ' conflict');
+    if (getEnv(text) !== typeRHS)
+      console.warn('warning: types ' + getEnv(text) + ' and ' + typeRHS + ' conflict');
     addType($(this).prev(), typeRHS);
-    addType($(this).next(), typeRHS); // for safe measure
-    env[text] = typeRHS;
+    // if ($(this).next().text()) addType($(this).next(), typeRHS); // for good measure
+    setEnv(text, typeRHS);
   });
 
   // figure out more stuff
@@ -109,6 +157,32 @@ $(document).ready(function(){
   editor.on('change', function() {
     setTimeout(main, 1);
   });
+
+  editor.on('cursorActivity', function() {
+    // we selected a new token, so let's show that
+    var oldToken = window.currentToken;
+    var newToken = getWordUnderCursor().match(/^[a-zA-Z_][a-zA-Z0-9_]*$/);
+    newToken = newToken && newToken[0];
+    if (!oldToken && newToken) {
+      // Update to show the token
+      $('.color-changer > #msg').html('<p id="msg">The current token is: <span id="cur-token"></span></p>');
+      $('#slider-1').slider('option', 'disabled', false);
+      $('#cur-token').text(newToken);
+      window.currentToken = newToken;
+      updateSlider(null, { value: $('#slider-1').slider('value')} );
+    } else if (oldToken && !newToken) {
+      // This isn't a valid token, so don't update it
+      $('.color-changer > #msg').html('<p id="msg">Please select a token</p>');
+      $('#slider-1').slider('option', 'disabled', true);
+      window.currentToken = '';
+    } else if (newToken) {
+      window.currentToken = newToken;
+      $('#cur-token').text(newToken);
+      updateSlider(null, { value: $('#slider-1').slider('value')} );
+    }
+  });
+
+  // Run the psuedo type-inference
   main();
 });
 function selectAll(id) {

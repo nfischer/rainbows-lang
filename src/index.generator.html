@@ -2,76 +2,59 @@
 <html>
 <head>
 <title>Rainbows</title>
-<style>
-@font-face {
-  font-family: GoodDog;
-  src: url("fonts/GoodDog-regular/GoodDog.otf") format("opentype");
-}
-body {
-  background-color: lightblue;
-}
-table {
-  margin-left: auto;
-  margin-right: auto;
-}
-body, h1, p {
-  text-align: center;
-  font-family: GoodDog;
-}
-h1 {
-  font-size: 400%;
-}
-h2 {
-  font-style: italic;
-  font-size: 300%;
-}
-p {
-  font-size: 150%;
-}
-.CodeMirror {
-  text-align: left;
-  width: 50em;
-  border: solid;
-  border-color: lightgrey;
-  background-color: #E0E9EC !important;
-}
-.CodeMirror-gutters {
-  background-color: #DAE5E8 !important;
-}
-.code-box {
-  height: auto;
-  display: table;
-  width: auto;
-  display: inline-block;
-}
-.container {
-  height: 100%;
-  float: right;
-  margin-top: 20px;
-  margin-left: 10px;
-}
-button.selector {
-  position: relative;
-}
-</style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 <script type="text/javascript" src="lib/codemirror/lib/codemirror.js"></script>
 <script type="text/javascript" src="lib/codemirror/mode/rainbows/rainbows.js"></script>
 <script type="text/javascript" src="lib/codemirror/mode/javascript/javascript.js"></script>
 <link rel="stylesheet" type="text/css" href="lib/codemirror/lib/codemirror.css">
-<link rel="stylesheet" type="text/css" href="src/rainbows-types.css">
 <link rel="stylesheet" type="text/css" href="lib/hint.min.css">
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="src/rainbows-types.css">
+<link rel="stylesheet" type="text/css" href="src/main.css">
 <script type="text/javascript" src="src/index.js"></script>
+<script type="text/javascript">
+  var updateSlider;
+  $(function() {
+    var rbTypeList = ['no type', 'string', 'int', 'float', 'bool', 'list', 'dict'];
+    var rbColorList = rbTypeList.map(x => $('.rb-type-' + x).css('color') || $('.cm-s-default').css('color'));
+    var node = $('.ui-state-default');
+    $('.ui-state-default').css('background', $('.cm-s-default').css('color'));
+    $('.ui-widget-content').css('background', '#E0E9EC');
+    updateSlider = function (event, ui) {
+      var myType = rbTypeList[ui.value];
+      node.css('background', rbColorList[ui.value]);
+      setEnv(window.currentToken, (myType === 'no type' ? 'unknown' : myType));
+      main(); // infer types, but now with this remembered type
+    }
+    $('#slider-1').slider({
+      min: 0,
+      max: rbTypeList.length - 1,
+      value: 0,
+      slide: updateSlider,
+    });
+    $('#slider-1').slider('option', 'disabled', true);
+  })
+</script>
 </head>
 <body>
+<p hidden>
+  <!-- This is to make sure we have at least one instance of each rb-type class -->
+  <div class="rb-type-bool"></div>
+  <div class="rb-type-string"></div>
+  <div class="rb-type-int"></div>
+  <div class="rb-type-float"></div>
+  <div class="rb-type-dict"></div>
+  <div class="rb-type-list"></div>
+</p>
 <h1>
   <span class="rb-type-string">R</span><span class="rb-type-dict">a</span><span class="rb-type-int">i</span><span class="rb-type-list">N</span><span class="rb-type-string">B</span><span class="rb-type-dict">o</span><span class="rb-type-int">W</span><span class="rb-type-list">s</span>
 </h1>
 <p>Like it? Check out the project <a href="https://github.com/nfischer/rainbows">on Github</a></p>
+<div class="code-box">
 <table>
 <tr>
 <td>
-<div class="code-box">
 <h2>Rainbows code</h2>
 <textarea id="rainbows" class="codemirror-textarea">
 // Recursive fibonacci algorithm
@@ -88,6 +71,12 @@ function fib(n) {
 var output = fib(12);
 var msg = "hello world";
 </textarea>
+</div>
+</td>
+<td>
+<div class="color-changer">
+<p id="msg">Please select a token</p>
+<div id="slider-1" myval="40"=></div>
 </div>
 </td>
 </tr>

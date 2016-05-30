@@ -1,0 +1,62 @@
+@font-face {
+  font-family: GoodDog;
+  src: url("../fonts/GoodDog-regular/GoodDog.otf") format("opentype");
+}
+#msg {
+  font-size: 24px;
+  text-align: left;
+}
+#cur-token {
+  text-decoration: underline;
+}
+.color-changer {
+  margin-left: 10px;
+  width: auto 200px;
+  position: absolute;
+}
+body {
+  background-color: lightblue;
+}
+table {
+  margin-left: auto;
+  margin-right: auto;
+}
+body, h1, p {
+  text-align: center;
+  font-family: GoodDog;
+}
+h1 {
+  font-size: 400%;
+}
+h2 {
+  font-style: italic;
+  font-size: 300%;
+}
+p {
+  font-size: 150%;
+}
+.CodeMirror {
+  text-align: left;
+  width: 50em;
+  border: solid;
+  border-color: lightgrey;
+  background-color: #E0E9EC !important;
+}
+.CodeMirror-gutters {
+  background-color: #DAE5E8 !important;
+}
+.code-box {
+  height: auto;
+  display: table;
+  width: auto;
+  display: inline-block;
+}
+.container {
+  height: 100%;
+  float: right;
+  margin-top: 20px;
+  margin-left: 10px;
+}
+button.selector {
+  position: relative;
+}
