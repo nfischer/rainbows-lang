@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "ohm-builder.js src/index.generator.html index.html",
-    "build:watch": "watch 'npm run build' src"
+    "build:watch": "watch 'npm run build' src",
+    "deploy": "node scripts/deploy.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
   "homepage": "https://github.com/nfischer/rainbows#readme",
   "devDependencies": {
     "ohm-builder": "^0.3.0",
+    "shelljs": "^0.7.0",
     "watch": "^0.18.0"
   },
   "directories": {
