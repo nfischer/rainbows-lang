@@ -96,7 +96,7 @@ function makeTypedFun(token, lineNode) {
 
 
 function appendTypeClass(originalClassName) {
-  $(originalClassName).each(function() {
+  $('#rainbows-editor ' + originalClassName).each(function() {
     var output = $(this).text();
     if (originalClassName === '.cm-number') {
       if ($(this).text().match(/.*\..*/))
@@ -133,7 +133,7 @@ function main() {
   appendTypeClass('.cm-variable-2');
 
   // figure out LHS of any assignments (esp. definitions!)
-  $('.cm-operator').filter(function() {
+  $('#rainbows-editor .cm-operator').filter(function() {
     return $(this).text() === "=";
   }).each(function() {
     try {
@@ -150,16 +150,22 @@ function main() {
   });
 
   // figure out more stuff
+
+  // now convert it
+  setTimeout(function() {
+    jscode.setValue(domToText());
+  }, 0);
 }
 
 $(document).ready(function() {
   var code = $('.codemirror-textarea')[0];
   editor = CodeMirror.fromTextArea(code, {
-    mode: "rainbows",
+    mode: 'rainbows',
     lineNumbers: true
   });
   var output = $('.codemirror-textarea')[1];
   jscode = CodeMirror.fromTextArea(output, {
+    mode: 'javascript',
     readOnly: true,
     lineNumbers: true
   });
@@ -192,9 +198,41 @@ $(document).ready(function() {
     }
   });
 
+  $('#rainbows-text').next().attr('id', 'rainbows-editor');
+
   // Run the psuedo type-inference
   main();
 });
+
 function selectAll(id) {
   document.getElementById(id).select();
+}
+
+// Find the DOM structure of the rainbows code and serialize this into a sort of
+// plain text
+function convertNode(node) {
+  var myclass = node.attr('class');
+  myclass = myclass && myclass.match(/rb-type-(\S+)/);
+  var ret = node.text();
+  if (myclass) {
+    var wrapper = 'ã' + myclass[1] + 'ã';
+    return wrapper + ret + wrapper;
+  } else {
+    return ret === '\u200b' ? '' : ret;
+  }
+}
+
+function domToText() {
+  // TODO(nate): refactor this into a functional style
+  var serializedLines = [];
+  $('#rainbows-editor .CodeMirror-line > span').each(function (num, line) {
+    var strVal = [];
+    $(line).contents().each(function (x, y) {
+      strVal.push(convertNode($(y)));
+    });
+    serializedLines.push(strVal.join(''));
+  });
+
+  var serializedText = serializedLines.join('\n');
+  return serializedText;
 }
