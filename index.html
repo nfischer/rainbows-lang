@@ -539,9 +539,8 @@ Rainbows {
   });
   $(function() {
     var rbTypeList = ['no type', 'string', 'int', 'float', 'bool', 'list', 'dict'];
-    var rbColorList = rbTypeList.map(x => $('.rb-type-' + x).css('color') || $('.cm-s-default').css('color'));
-    $('.ui-state-default').css('background', $('.cm-s-default').css('color'));
-    $('.ui-widget-content').css('background', '#E0E9EC');
+    var matchingGrey = $('.cm-s-default').css('color');
+    var rbColorList = rbTypeList.map(x => $('.rb-type-' + x).css('color') || matchingGrey);
     var node = {}; // hack: use an object here, because of scoping issues
     updateSlider = function (event, ui) {
       var myType = rbTypeList[ui.value];
@@ -551,6 +550,7 @@ Rainbows {
       setEnv(window.currentToken, (myType === 'no type' ? 'unknown' : myType));
 
       addType(node.value, myType); // show the link hint for the slider UI
+      addType($('#cur-token'), myType); // show the link hint for the slider UI
       main(); // infer types, but now we'll remember the user's manual change
     }
     $('#slider-1').slider({
@@ -560,6 +560,8 @@ Rainbows {
       slide: updateSlider,
     });
     node.value = $('.ui-state-default');
+    node.value.css('background', matchingGrey);
+    $('.ui-widget-content').css('background', '#E0E9EC');
     $('#slider-1').slider('option', 'disabled', true);
   })
 </script>
