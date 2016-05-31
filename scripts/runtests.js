@@ -20,6 +20,10 @@ s.addOperation(
   'ti()',
   semantics.typeInference);
 
+s.addOperation(
+  'rb()',
+  semantics.rbInterp);
+
 var m;
 
 global.getEnv = function(x) {
@@ -43,27 +47,33 @@ global.setEnv = function(token, value) {
 
 m = es5.match('3 + 4');
 assert.equal(s(m).ti(), 'int');
+assert.equal(s(m).rb(), '7');
 
 m = es5.match('-2 + 4');
 assert.equal(s(m).ti(), 'int');
+assert.equal(s(m).rb(), 2);
 
 m = es5.match('0 + 4');
 assert.equal(s(m).ti(), 'int');
+assert.equal(s(m).rb(), 4);
 
 m = es5.match('0 % 4 - 5 * 6 / 8 - 5');
 assert.equal(s(m).ti(), 'int');
 
 m = es5.match('3. + 4');
 assert.equal(s(m).ti(), 'float');
+assert.equal(s(m).rb(), '7');
 
 m = es5.match('0 % ((4 - 5.2) * 6) / 8 - 5;');
 assert.equal(s(m).ti(), 'float');
 
 m = es5.match('true');
 assert.equal(s(m).ti(), 'bool');
+assert.equal(s(m).rb(), 'true');
 
 m = es5.match('false;');
 assert.equal(s(m).ti(), 'bool');
+assert.equal(s(m).rb(), 'false');
 
 // m = es5.match('"hello";');
 // assert.equal(s(m).ti(), 'string');
@@ -76,6 +86,7 @@ assert.equal(s(m).ti(), 'string');
 
 m = es5.match("x = 'hello'");
 assert.equal(s(m).ti(), 'string');
+assert.equal(s(m).rb(), 'hello');
 
 m = es5.match("x = {}");
 assert.equal(s(m).ti(), 'dict');
