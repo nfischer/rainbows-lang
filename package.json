@@ -4,7 +4,7 @@
   "description": "The rainbows programming language",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node scripts/runtests.js",
     "build": "ohm-builder.js src/index.generator.html index.html",
     "build:watch": "watch 'npm run build' src",
     "deploy": "node scripts/deploy.js"

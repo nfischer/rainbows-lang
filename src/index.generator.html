@@ -15,15 +15,52 @@
 <script type="text/javascript" src="src/index.js"></script>
 <script type="text/javascript" src="src/rb-examples.js"></script>
 <script type="text/javascript" src="lib/ohm/dist/ohm.min.js"></script>
+<script type="text/javascript" src="src/semantics.js"></script>
 <script type="text/ohm-js" src="src/rainbows.ohm"></script>
+<script type="text/ohm-js" src="lib/ohm/examples/ecmascript/es5.ohm"></script>
 <script type="text/javascript">
-  var rbGrammar = ohm.grammarFromScriptElement();
+  var s;
+  var grammars;
+  $(document).ready(function() {
+    grammars = ohm.grammarsFromScriptElements();
+    s = grammars.ES5.semantics();
+    s.addOperation(
+        'ti()',
+        typeInference);
+  });
 
-  var m = rbGrammar.match("~int~foo + 3~foo~");
-  if (m.succeeded())
-    console.log('hi');
-  else
-    console.log('bye');
+  // This accepts a javascript expression and returns a string denoting its type
+  function getJsType(expr) {
+    var widget;
+    var m = grammars.ES5.match(expr);
+    if (m.succeeded()) {
+      return s(m).ti();
+    //} else {
+    //  var timeout;
+    //  editor.on('keyHandled', function() {
+    //    if(timeout) {
+    //      clearTimeout(timeout);
+    //      timeout = null;
+    //      setTimeout(function() {
+    //        if (widget) widget.clear();
+    //        widget = null;
+    //      }, 200);
+    //    }
+    //  });
+    //  timeout = setTimeout(function() {
+    //    if (m.message) {
+    //      try {
+    //        var lineNum = m.message.match(/Line: (\d+),/)[1];
+    //      } catch(e) {
+    //        lineNum = 14;
+    //      }
+    //      var d = document.createElement('div');
+    //      d.appendChild(document.createTextNode(m.message));
+    //      widget = widget || editor.addLineWidget(parseInt(lineNum), d);
+    //    }
+    //  }, 30);
+    }
+  }
 </script>
 <script type="text/javascript">
   var updateSlider;

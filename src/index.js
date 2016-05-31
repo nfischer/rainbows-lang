@@ -66,14 +66,8 @@ function getWordUnderCursor() {
 }
 
 function getEnv(token) {
-  if (!env[token])
-    return 'unknown';
-  else if (!env[token].type)
-    return 'unknown';
-  else if (env[token].ret)
-    return env[token].ret;
-  else
-    return env[token].type;
+  var v = env[token] || 'unknown';
+  return v.ret || v.type || v;
 }
 
 function setEnv(token, value) {
@@ -136,7 +130,7 @@ function appendTypeClass(originalClassName) {
       addType($(this), getEnv(output));
     } else {
       addType($(this), getEnv(output));
-      if ($(this).parent().text().match($(this).text() + '\s*\\(')) {
+      if (env[output] && env[output].type === 'fun') {
         underlineArguments($(this).text(), $(this).parent(), env[$(this).text()].args);
       }
     }
@@ -144,6 +138,8 @@ function appendTypeClass(originalClassName) {
 }
 function main() {
   // TODO: clear out `env` for any token that isn't currently present
+
+  getJsType(editor.getValue());
 
   // literals
   appendTypeClass('.cm-number');
@@ -156,23 +152,7 @@ function main() {
   // variable references and re-assignments (of known ids)
   appendTypeClass('.cm-variable');
   appendTypeClass('.cm-variable-2');
-
-  // figure out LHS of any assignments (esp. definitions!)
-  $('#rainbows-editor .cm-operator').filter(function() {
-    return $(this).text() === "=";
-  }).each(function() {
-    try {
-      var typeRHS = $(this).next().attr('class').match(/rb-type-(\S+)/)[1];
-    } catch(e) {
-      typeRHS = getEnv($(this).next().text());
-    }
-    var text = $(this).prev().text();
-    if (getEnv(text) !== typeRHS)
-      console.warn('warning: types ' + getEnv(text) + ' and ' + typeRHS + ' conflict');
-    addType($(this).prev(), typeRHS);
-    // if ($(this).next().text()) addType($(this).next(), typeRHS); // for good measure
-    setEnv(text, typeRHS);
-  });
+  appendTypeClass('.cm-property');
 
   // figure out more stuff
 
@@ -226,7 +206,7 @@ $(document).ready(function() {
   $('#rainbows-text').next().attr('id', 'rainbows-editor');
 
   // Run the psuedo type-inference
-  main();
+  setTimeout(main, 5);
 });
 
 function selectAll(id) {

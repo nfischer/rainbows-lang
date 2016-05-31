@@ -24,8 +24,24 @@ var msg = "hello world";
   for (var k in range(1, count)) {
     mylist.append(str);
   }
-  return mylist.join();
+  var ret = mylist.join();
+  return ret;
 }
+print(repeatstring("foobar", 5));
+print(repeatstring(5, 'wrong place'));
+`,
+},
+{
+  name: 'Arithmetic',
+  code:
+`var a = 3 + 4;
+var b = 5.2 * 7.1;
+var c = 12.3 / 4;
+var d = "hello" + ' goodbye';
+var e = 'string' + 5;
+var f = true;
+var g = []; // list
+var h = {}; // dict
 `,
 },
 {
@@ -38,17 +54,15 @@ function getLength(str) {
     return cache[str];
   } catch(e) {
     var c = 0;
-    while str[c] != '\\0' {
+    while (str[c] != '\\0')
       c++;
-    }
     cache[str] = c;
     return c;
   }
 }
 
-print getLength("hello world")
-print getLength("hello world")
-print getLength(['h', 'e', 'l', 'l', 'o'])
+print(getLength("hello world"));
+print(getLength(['h', 'e', 'l', 'l', 'o']));
 `,
 },
 {
