@@ -179,21 +179,26 @@ $(document).ready(function() {
     setTimeout(main, 1);
   });
 
+  var sliderMsg = '<p id="msg">Click on a grey variable to assign its type</p>';
+  $(document).ready(function () {
+    $('.color-changer > #msg').html(sliderMsg);
+  });
   editor.on('cursorActivity', function() {
     // we selected a new token, so let's show that
     var oldToken = window.currentToken;
     var newToken = getWordUnderCursor().match(/^[a-zA-Z_][a-zA-Z0-9_]*$/);
-    newToken = newToken && newToken[0];
+    newToken = newToken && newToken[0].trim();
     if (!oldToken && newToken) {
       // Update to show the token
-      $('.color-changer > #msg').html('<p id="msg">The current token is: <span id="cur-token"></span></p>');
+      $('.color-changer > #msg')
+          .html('<p id="msg">Drag the slider to color in "<span id="cur-token"></span>"</p>');
       $('#slider-1').slider('option', 'disabled', false);
       $('#cur-token').text(newToken);
       window.currentToken = newToken;
       updateSlider(null, { value: $('#slider-1').slider('value')} );
     } else if (oldToken && !newToken) {
       // This isn't a valid token, so don't update it
-      $('.color-changer > #msg').html('<p id="msg">Please select a token</p>');
+      $('.color-changer > #msg').html(sliderMsg);
       $('#slider-1').slider('option', 'disabled', true);
       window.currentToken = '';
     } else if (newToken) {
