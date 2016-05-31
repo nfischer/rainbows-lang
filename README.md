@@ -1,14 +1,11 @@
 # Rainbows
 A prototype of the Rainbows programming language
 
-This is very much a work in progress, but feel free to try out what I have so
-far at https://nfischer.github.io/rainbows/
-
 To learn about the motivation, check out the original [one page design
 doc](doc/OnePager3v2.pdf).
 
-Feel free to try out the editor [online](https://nfischer.github.io/rainbows/)
-and let me know what you think of the project!
+Feel free to try out the editor online https://nfischer.github.io/rainbows/ and
+let me know what you think of the project!
 
 An interpreter is coming soon!
 
