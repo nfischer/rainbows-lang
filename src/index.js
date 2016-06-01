@@ -182,11 +182,30 @@ $(document).ready(function() {
   $(document).ready(function () {
     $('.color-changer > #msg').html(sliderMsg);
   });
+  var reservedWords = `
+      abstract else instanceof super
+      boolean enum int switch
+      break export interface synchronized
+      byte extends let this
+      case false long throw
+      catch final native throws
+      char finally new transient
+      class float null true
+      const for package try
+      continue function private typeof
+      debugger goto protected var
+      default if public void
+      delete implements return volatile
+      do import short while
+      double in static with`.split(/[\s\n]+/);
+
   editor.on('cursorActivity', function() {
     // we selected a new token, so let's show that
     var oldToken = window.currentToken;
     var newToken = getWordUnderCursor().match(/^[a-zA-Z_][a-zA-Z0-9_]*$/);
     newToken = newToken && newToken[0].trim();
+    if (reservedWords.includes(newToken))
+      newToken = null;
     if (!oldToken && newToken) {
       // Update to show the token
       $('.color-changer > #msg')
