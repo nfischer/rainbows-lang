@@ -28,7 +28,9 @@ s.addOperation(
 
 var m;
 
-function doTest(expr, type, val) {
+function doTest(expr, type, val, setup) {
+  if (setup)
+    setup();
   var m = es5.match(expr);
   assert.ok(m.succeeded());
   assert.strictEqual(s(m).ti(), type);
@@ -86,8 +88,7 @@ doTest("foo = 1; foo = 2", 'int', 2);
 // doTest("foo = 1; ++foo", 'int', 2);
 // tokenTypes.setVal('foo', 'int');
 
-tokenTypes.setVal('foo', 'int');
-doTest("foo + 7", 'int', null);
+doTest("foo + 7", 'int', null, () => {tokenTypes.setVal('foo', 'int'); });
 
 tokenTypes.setVal('foo', 'int');
 doTest("foo + 7.3", 'float', null);
@@ -169,6 +170,57 @@ if (a == 0) {
   b = "bye";
 }
 b`, 'string', 'that');
+
+doTest(
+`// Recursive fibonacci algorithm
+function fib(n) {
+  if (n == 0) {
+    return 0;
+  } else if (n == 1) {
+    return 1;
+  } else {
+    return fib(n-1)+fib(n-2);
+  }
+}
+var output = fib(12);
+var msg = "hello world";
+output`, 'int', null);
+
+doTest(
+`// Recursive fibonacci algorithm
+function fib(n) {
+  if (n == 0) {
+    return 0;
+  } else if (n == 1) {
+    return 1;
+  } else {
+    return fib(n-1)+fib(n-2);
+  }
+}
+var output = fib(12);
+var msg = "hello world";
+msg`, 'string', null);
+
+doTest(
+`
+var cache = {};
+cache`, 'dict', null);
+
+doTest(
+`
+var cache = {};
+function getLength(str) {
+  try {
+    return cache[str];
+  } catch(e) {
+    var c = 0;
+    while (str[c] != '\0')
+      c++;
+    cache[str] = c;
+    return c;
+  }
+}
+getLength('hi')`, 'int', null);
 
 // set('+e');
 // var retStatus = 0;
