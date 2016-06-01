@@ -28,58 +28,46 @@ s.addOperation(
 
 var m;
 
+function doTest(expr, type, val) {
+  var m = es5.match(expr);
+  assert.ok(m.succeeded());
+  assert.strictEqual(s(m).ti(), type);
+  if (val !== null)
+    assert.strictEqual(s(m).rb(), val);
+}
+
+
 //
 // Valids
 //
 
-m = es5.match('3 + 4');
-assert.strictEqual(s(m).ti(), 'int');
-assert.strictEqual(s(m).rb(), 7);
+doTest('3 + 4', 'int', 7);
+doTest('-2 + 4', 'int', 2);
 
-m = es5.match('-2 + 4');
-assert.strictEqual(s(m).ti(), 'int');
-assert.strictEqual(s(m).rb(), 2);
+doTest('0 + 4', 'int', 4);
 
-m = es5.match('0 + 4');
-assert.strictEqual(s(m).ti(), 'int');
-assert.strictEqual(s(m).rb(), 4);
+doTest('0 % 4 - 5 * 6 / 8 - 5', 'int', -8);
 
-m = es5.match('0 % 4 - 5 * 6 / 8 - 5');
-assert.strictEqual(s(m).ti(), 'int');
+doTest('3. + 4', 'float', 7);
 
-m = es5.match('3. + 4');
-assert.strictEqual(s(m).ti(), 'float');
-assert.strictEqual(s(m).rb(), 7);
+doTest('0 % ((4 - 5.2) + 4)', 'float', 0);
 
-m = es5.match('0 % ((4 - 5.2) * 6) / 8 - 5;');
-assert.strictEqual(s(m).ti(), 'float');
+doTest('true', 'bool', true);
 
-m = es5.match('true');
-assert.strictEqual(s(m).ti(), 'bool');
-assert.strictEqual(s(m).rb(), true);
-
-m = es5.match('false;');
-assert.strictEqual(s(m).ti(), 'bool');
-assert.strictEqual(s(m).rb(), false);
+doTest('false;', 'bool', false);
 
 // m = es5.match('"hello";');
 // assert.strictEqual(s(m).ti(), 'string');
 
-m = es5.match('"hello" + 5');
-assert.strictEqual(s(m).ti(), 'string');
+doTest('"hello" + 5', 'string', 'hello5');
 
-m = es5.match("'hello' + 5.3");
-assert.strictEqual(s(m).ti(), 'string');
+doTest("'hello' + 5.3", 'string', 'hello5.3');
 
-m = es5.match("x = 'hello'");
-assert.strictEqual(s(m).ti(), 'string');
-assert.strictEqual(s(m).rb(), 'hello');
+doTest("x = 'hello'", 'string', 'hello');
 
-m = es5.match("x = {}");
-assert.strictEqual(s(m).ti(), 'dict');
+doTest("x = {}", 'dict', null);
 
-m = es5.match("({foo: true})");
-assert.strictEqual(s(m).ti(), 'dict');
+doTest("({foo: true})", 'dict', null);
 
 m = es5.match("({foo: true, bar: 0})");
 assert.strictEqual(s(m).ti(), 'dict');
@@ -88,20 +76,24 @@ m = es5.match("({foo: true, bar: 0,})");
 assert.strictEqual(s(m).ti(), 'dict');
 
 tokenTypes.setVal('foo', 'int');
-m = es5.match("foo");
-assert.strictEqual(s(m).ti(), 'int');
+doTest("foo = 1", 'int', 1);
+doTest("foo = 1; foo = 2", 'int', 2);
+// tokenTypes.setVal('foo', 'int');
+// doTest("foo = 1; foo++", 'int', 1);
+// tokenTypes.setVal('foo', 'int');
+// doTest("foo = 1; foo--", 'int', 1);
+// tokenTypes.setVal('foo', 'int');
+// doTest("foo = 1; ++foo", 'int', 2);
+// tokenTypes.setVal('foo', 'int');
 
 tokenTypes.setVal('foo', 'int');
-m = es5.match("foo + 7");
-assert.strictEqual(s(m).ti(), 'int');
+doTest("foo + 7", 'int', null);
 
 tokenTypes.setVal('foo', 'int');
-m = es5.match("foo + 7.3");
-assert.strictEqual(s(m).ti(), 'float');
+doTest("foo + 7.3", 'float', null);
 
 tokenTypes.setVal('foo', 'int');
-m = es5.match("7.1 + foo");
-assert.strictEqual(s(m).ti(), 'float');
+doTest("7.1 + foo", 'float', null);
 
 tokenTypes.setVal('foo', 'fun');
 tokenTypes.setVal('foo', 'int');
@@ -113,11 +105,70 @@ tokenTypes.setVal('foo', 'int');
 m = es5.match("foo(12, 'hi')");
 assert.strictEqual(s(m).ti(), 'int');
 
-m = es5.match("x = []");
-assert.strictEqual(s(m).ti(), 'list');
+doTest("x = []", 'list', null);
+doTest("[1, 2, 3]", 'list', null);
 
-m = es5.match("[1, 2, 3]");
-assert.strictEqual(s(m).ti(), 'list');
+doTest(
+`var a = 0;
+while (a < 3)
+  a++;
+a`, 'int', 3);
+
+doTest(
+`var a = 0;
+var b = 5;
+while (a < 3) {
+  a++;
+  b--;
+}
+b`, 'int', 5-3);
+
+doTest(
+`var a = 0;
+var b = 5;
+do {
+  a++;
+  b--;
+} while (a < 3);
+b`, 'int', 5-3);
+
+doTest(
+`var a = 1;
+if (a > 0) {
+  a++;
+}
+a`, 'int', 2);
+
+doTest(
+`var a = 0;
+if (a == 0) {
+  a++;
+}
+a`, 'int', 1);
+
+doTest(
+`var a = 4;
+var b = "initial";
+if (a == 0) {
+  b = "hi";
+} else if (a < 4) {
+  b = "that";
+} else {
+  b = "bye";
+}
+b`, 'string', 'bye');
+
+doTest(
+`var a = 4;
+var b = "initial";
+if (a == 0) {
+  b = "hi";
+} else if (a <= 4) {
+  b = "that";
+} else {
+  b = "bye";
+}
+b`, 'string', 'that');
 
 // set('+e');
 // var retStatus = 0;
