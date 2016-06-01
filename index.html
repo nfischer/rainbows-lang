@@ -15,7 +15,8 @@
 <script type="text/javascript" src="src/index.js"></script>
 <script type="text/javascript" src="src/rb-examples.js"></script>
 <script type="text/javascript" src="lib/ohm/dist/ohm.min.js"></script>
-<script type="text/javascript" src="src/semantics.js"></script>
+<script type="text/javascript" src="src/inference.js"></script>
+<script type="text/javascript" src="src/interp.js"></script>
 <script type="text/ohm-js">
 Rainbows {
 
@@ -1022,6 +1023,15 @@ ES5Lax <: ES5 {
         'rb()',
         rbInterp);
   });
+
+  function interp(expr) {
+    var m = grammars.ES5.match(expr);
+    if (m.succeeded()) {
+      return s(m).rb();
+    } else {
+      throw "Error";
+    }
+  }
 
   // This accepts a javascript expression and returns a string denoting its type
   function getJsType(expr) {

@@ -114,15 +114,14 @@ function makeTypedFun(token, lineNode) {
 function appendTypeClass(originalClassName) {
   $('#rainbows-editor ' + originalClassName).each(function() {
     var output = $(this).text();
-    if (originalClassName === '.cm-number') {
-      if ($(this).text().match(/.*\..*/))
-        addType($(this), 'float');
-      else
-        addType($(this), 'int');
-    } else if (originalClassName === '.cm-atom') {
-      addType($(this), 'bool');
-    } else if (originalClassName === '.cm-string') {
-      addType($(this), 'string');
+    var literalsMap = {
+      '.cm-atom'  : 'bool',
+      '.cm-string': 'string',
+    };
+    if (literalsMap[originalClassName])
+      addType($(this), literalsMap[originalClassName]);
+    else if (originalClassName === '.cm-number') {
+      addType($(this), output.match(/\./) ? 'float' : 'int');
     } else if (originalClassName === '.cm-def') {
       if ($(this).parent().text().match(output + ' *\\(')) {
         makeTypedFun(output, $(this).parent());
@@ -131,7 +130,7 @@ function appendTypeClass(originalClassName) {
     } else {
       addType($(this), getEnv(output));
       if (env[output] && env[output].type === 'fun') {
-        underlineArguments($(this).text(), $(this).parent(), env[$(this).text()].args);
+        underlineArguments(output, $(this).parent(), env[output].args);
       }
     }
   });
@@ -156,9 +155,9 @@ function main() {
 
   // figure out more stuff
 
-  // now convert it
+  // now interpret it
   setTimeout(function() {
-    jscode.setValue(domToText());
+    console.log(interp(editor.getValue()));
   }, 0);
 }
 

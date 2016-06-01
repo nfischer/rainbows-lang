@@ -6,7 +6,8 @@ var assert = require('assert');
 var ohm = require('../lib/ohm/dist/ohm');
 var fs = require('fs');
 var path = require('path');
-var semantics = require('../src/semantics');
+var inference = require('../src/inference');
+var interp = require('../src/interp');
 require('shelljs/global');
 var ohmFile = path.join(__dirname, '..', 'lib', 'ohm', 'examples', 'ecmascript', 'es5.ohm');
 
@@ -18,11 +19,11 @@ var es5 = ohm.grammars(contents).ES5;
 var s = es5.semantics();
 s.addOperation(
   'ti()',
-  semantics.typeInference);
+  inference.typeInference);
 
 s.addOperation(
   'rb()',
-  semantics.rbInterp);
+  interp.rbInterp);
 
 var m;
 
@@ -47,33 +48,33 @@ global.setEnv = function(token, value) {
 
 m = es5.match('3 + 4');
 assert.equal(s(m).ti(), 'int');
-assert.equal(s(m).rb(), '7');
+assert.strictEqual(s(m).rb(), 7);
 
 m = es5.match('-2 + 4');
 assert.equal(s(m).ti(), 'int');
-assert.equal(s(m).rb(), 2);
+assert.strictEqual(s(m).rb(), 2);
 
 m = es5.match('0 + 4');
 assert.equal(s(m).ti(), 'int');
-assert.equal(s(m).rb(), 4);
+assert.strictEqual(s(m).rb(), 4);
 
 m = es5.match('0 % 4 - 5 * 6 / 8 - 5');
 assert.equal(s(m).ti(), 'int');
 
 m = es5.match('3. + 4');
 assert.equal(s(m).ti(), 'float');
-assert.equal(s(m).rb(), '7');
+assert.strictEqual(s(m).rb(), 7);
 
 m = es5.match('0 % ((4 - 5.2) * 6) / 8 - 5;');
 assert.equal(s(m).ti(), 'float');
 
 m = es5.match('true');
 assert.equal(s(m).ti(), 'bool');
-assert.equal(s(m).rb(), 'true');
+assert.strictEqual(s(m).rb(), true);
 
 m = es5.match('false;');
 assert.equal(s(m).ti(), 'bool');
-assert.equal(s(m).rb(), 'false');
+assert.strictEqual(s(m).rb(), false);
 
 // m = es5.match('"hello";');
 // assert.equal(s(m).ti(), 'string');
@@ -86,7 +87,7 @@ assert.equal(s(m).ti(), 'string');
 
 m = es5.match("x = 'hello'");
 assert.equal(s(m).ti(), 'string');
-assert.equal(s(m).rb(), 'hello');
+assert.strictEqual(s(m).rb(), 'hello');
 
 m = es5.match("x = {}");
 assert.equal(s(m).ti(), 'dict');

@@ -66,15 +66,17 @@ print(getLength(['h', 'e', 'l', 'l', 'o']));
 `,
 },
 {
-  name: 'string concatenation',
-  code:
-`'hello' + 'world'
-`,
-},
-{
   name: 'integer addition',
   code:
 `1 + 3
+`,
+},
+{
+  name: 'property inference',
+  code:
+`var foo = {bar: 72, baz: "hi"};
+var shouldBeInt = foo.bar;
+var shouldBeStr = foo.baz;
 `,
 },
 ];
