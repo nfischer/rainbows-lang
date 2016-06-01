@@ -1,5 +1,10 @@
 var typeInference;
 
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+  // inside node
+  var tokenTypes = require('./types');
+}
+
 (function () {
   var functionName = '';
   var nameSpace = '';
@@ -29,15 +34,15 @@ var typeInference;
     errorObj['list'] = opPairs;
     errorObj['bool'] = opPairs;
     if (errorObj[ret] && errorObj[ret][opStr])
-      throw new Error(`cannot ${errorObj[ret][opStr]} string values`);
+      throw new Error(`cannot ${errorObj[ret][opStr]} ${ret} values`);
     return ret || 'unknown';
   }
 
   typeInference = {
-    Program: function(x, y) { return y.ti(); },
-    SourceElement: function(x) { return x.ti(); },
-    ExpressionStatement: function (x, y) { return x.ti(); },
-    Expression: function (x) { return x.ti(); },
+    Program: function(x, y) { var lines = y.ti(); return lines[lines.length-1] },
+    SourceElement: function(x) { return x.ti() },
+    ExpressionStatement: function (x, y) { return x.ti() },
+    Expression: function (x) { return x.ti() },
     EqualityExpression_equal: (x, y, z) => 'bool',
     EqualityExpression_notEqual: (x, y, z) => 'bool',
     EqualityExpression_eq: (x, y, z) => 'bool',
@@ -48,132 +53,137 @@ var typeInference;
     MultiplicativeExpression_div: (a, b, c) => arithHelper(a, b, c),
     MultiplicativeExpression_mod: (a, b, c) => arithHelper(a, b, c),
     UnaryExpression_unaryMinus:  (x, y) => y.ti(),
-    decimalLiteral_integerOnly: function (x, y) { return 'int'; },
-    decimalLiteral_bothParts: function (x, y, z, w) { return 'float'; },
+    decimalLiteral_integerOnly: function (x, y) { return 'int' },
+    decimalLiteral_bothParts: function (x, y, z, w) { return 'float' },
     MemberExpression_propRefExp: function (a, b, c) {
-      // console.log('retreiving', a.interval.contents + '#' + c.interval.contents);
-      return getEnv(a.interval.contents + '#' + c.interval.contents);
+      return tokenTypes.getVal(a.interval.contents + '#' + c.interval.contents)
     },
     MemberExpression_arrayRefExp: function (a, b, c, d) {
       // TODO(nate): fix this, I'm just not sure how
-      return 'unknown';
+      return 'unknown'
     },
-    Block: function (a, b, c) { b.ti(); return 'null'; },
+    Block: function (a, b, c) { b.ti(); return 'null' },
     FunctionDeclaration: function (a, id, c, d, e, f, body, h) {
       functionName = id.interval.contents;
-      if (!env[functionName]) {
-        env[functionName] = {
+      if (!tokenTypes.inferred[functionName]) {
+        tokenTypes.inferred[functionName] = {
           type: 'fun',
-          ret: 'unknown',
+          ret: tokenTypes.getVal(functionName),
           args: [], // TODO: fix this
         };
         body.ti();
       }
-      return 'null';
+      return 'null'
     },
-    FunctionBody: function (a, b) { return b.ti(); },
+    FunctionBody: function (a, b) {
+      var lines = b.ti();
+      return lines[lines.length-1]
+    },
     IfStatement: function (a, b, cond, d, expr, f, elseCase) {
       cond.ti();
       expr.ti();
       elseCase.ti();
-      return 'null';
+      return 'null'
     },
     VariableStatement: function (x, y, z) {
       y.ti(); // set these values!
-      return 'list';
+      return 'list'
     },
     VariableDeclaration: function (x, y) {
       var type = y.ti();
+      type = type[type.length-1];
       if (x.interval.contents.match(idRegex))
-        setEnv(x.interval.contents, type);
-      return type;
+        tokenTypes.setVal(x.interval.contents, type);
+      return type
     },
     Initialiser: function (x, y) {
       var type = y.ti();
-      return type;
+      return type
     },
     EmptyListOf: () => 'list',
     NonemptyListOf: function (x, y, z) {
+      // only x has anything in it
       x.ti(); // initialize these values!
-      return 'list';
+      return 'list'
     },
-    TryStatement: function (x) { return x.ti(); },
-    TryStatement_tryCatch: function (x, y, z) { y.ti(); z.ti(); return 'null'; },
-    TryStatement_tryFinally: function (x, y, z) { y.ti(); z.ti(); return 'null'; },
-    TryStatement_tryCatchFinally: function (x, y, z, w) { y.ti(); z.ti(); w.ti(); return 'null'; },
-    Catch: function (a, b, c, d, e) { c.ti(); e.ti(); return 'null'; },
-    Finally: function (a, b) { b.ti(); return 'null'; },
-    ArrayLiteral: function (x, y, z) { return 'list'; },
-    stringLiteral: function (x, y, z) { return 'string'; },
-    booleanLiteral: function (x) { return 'bool'; },
+    TryStatement: function (x) { return x.ti() },
+    TryStatement_tryCatch: function (x, y, z) { y.ti(); z.ti(); return 'null' },
+    TryStatement_tryFinally: function (x, y, z) { y.ti(); z.ti(); return 'null' },
+    TryStatement_tryCatchFinally: function (x, y, z, w) { y.ti(); z.ti(); w.ti(); return 'null' },
+    Catch: function (a, b, c, d, e) { c.ti(); e.ti(); return 'null' },
+    Finally: function (a, b) { b.ti(); return 'null' },
+    ArrayLiteral: function (x, y, z) { return 'list' },
+    stringLiteral: function (x, y, z) { return 'string' },
+    booleanLiteral: function (x) { return 'bool' },
     ReturnStatement: function (a, b, c, d) {
       var type = c.ti()[0];
       if (type !== 'unknown') {
-        env[functionName].ret = type;
+        tokenTypes.setVal(functionName, type);
       }
-      return 'null';
+      return 'null'
     },
     PostfixExpression_postIncrement: function(a, b, c) {
       a.ti();
       if (a.interval.contents.match(idRegex))
-        setEnv(a.interval.contents, 'int');
+        tokenTypes.setVal(a.interval.contents, 'int');
     },
     PostfixExpression_postDecrement: function(a, b, c) {
       a.ti();
       if (a.interval.contents.match(idRegex))
-        setEnv(a.interval.contents, 'int');
+        tokenTypes.setVal(a.interval.contents, 'int');
     },
     AssignmentExpression_assignment: (x, y, z) => {
       var type = z.ti();
-      if (x.interval.contents.match(idRegex))
-        setEnv(x.interval.contents, type);
-      return type;
+      if (x.interval.contents.match(idRegex)) {
+        tokenTypes.setVal(x.interval.contents, type);
+      }
+      return type
     },
     identifier: function (x) {
       // use the global env
-      return getEnv(x.interval.contents);
+      return tokenTypes.getVal(x.interval.contents)
     },
     IterationStatement: (a) => a.ti(),
     IterationStatement_doWhile: function(a, b, c, d, e, f, g) {
       b.ti();
       e.ti();
-      return 'null';
+      return 'null'
     },
     IterationStatement_whileDo: function(a, b, c, d, e) {
       c.ti();
       e.ti();
-      return 'null';
+      return 'null'
     },
     IterationStatement_for3: function(a, b, c, d, e, f, g, h, i) {
       c.ti();
       e.ti();
       g.ti();
       i.ti();
-      return 'null';
+      return 'null'
     },
     IterationStatement_for3var: function(a, b, _var, c, d, e, f, g, h, i) {
       c.ti();
       e.ti();
       g.ti();
       i.ti();
-      return 'null';
+      return 'null'
     },
     IterationStatement_forIn: function(a, b, lhs, c, expr, d, stmt) {
       lhs.ti();
       var type = expr.ti();
-      setEnv(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
+      tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
       stmt.ti();
-      return 'null';
+      return 'null'
     },
     IterationStatement_forInVar: function(a, b, _var, lhs, c, expr, d, stmt) {
       lhs.ti();
       var type = expr.ti();
-      setEnv(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
+      tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
       stmt.ti();
-      return 'null';
+      return 'null'
     },
     CallExpression_memberExpExp: function(x, y) {
-      return getEnv(x.interval.contents);
+      return tokenTypes.getVal(x.interval.contents)
     },
     PrimaryExpression_parenExpr: (x, y, z) => y.ti(),
     ObjectLiteral_noTrailingComma: function (a, b, c) {
@@ -181,21 +191,19 @@ var typeInference;
       nameSpace += a.interval.contents + '#';
       b.ti();
       nameSpace = oldNameSpace;
-      return 'dict';
+      return 'dict'
     },
     ObjectLiteral_trailingComma: function (a, b, c, d) {
       var oldNameSpace = nameSpace;
       nameSpace += a.interval.contents + '#';
       b.ti();
       nameSpace = oldNameSpace;
-      return 'dict';
+      return 'dict'
     },
     PropertyAssignment_simple: function (a, b, c) {
       var type = c.ti();
-      // console.log(nameSpace);
-      // console.log('saving', nameSpace + a.interval.contents);
-      setEnv(nameSpace + a.interval.contents, type);
-      return type;
+      tokenTypes.setVal(nameSpace + a.interval.contents, type);
+      return type
     },
   };
 })();

@@ -7,6 +7,7 @@ var ohm = require('../lib/ohm/dist/ohm');
 var fs = require('fs');
 var path = require('path');
 var inference = require('../src/inference');
+var tokenTypes = require('../src/types');
 var interp = require('../src/interp');
 require('shelljs/global');
 var ohmFile = path.join(__dirname, '..', 'lib', 'ohm', 'examples', 'ecmascript', 'es5.ohm');
@@ -27,121 +28,96 @@ s.addOperation(
 
 var m;
 
-global.getEnv = function(x) {
-  var g = global.env[x] || {};
-  return g.ret || g.type || g;
-}
-
-global.setEnv = function(token, value) {
-  if (env[token] && env[token].type === 'fun')
-    env[token].ret = value;
-  else {
-    env[token] = {
-      type: value,
-    };
-  }
-}
-
 //
 // Valids
 //
 
 m = es5.match('3 + 4');
-assert.equal(s(m).ti(), 'int');
+assert.strictEqual(s(m).ti(), 'int');
 assert.strictEqual(s(m).rb(), 7);
 
 m = es5.match('-2 + 4');
-assert.equal(s(m).ti(), 'int');
+assert.strictEqual(s(m).ti(), 'int');
 assert.strictEqual(s(m).rb(), 2);
 
 m = es5.match('0 + 4');
-assert.equal(s(m).ti(), 'int');
+assert.strictEqual(s(m).ti(), 'int');
 assert.strictEqual(s(m).rb(), 4);
 
 m = es5.match('0 % 4 - 5 * 6 / 8 - 5');
-assert.equal(s(m).ti(), 'int');
+assert.strictEqual(s(m).ti(), 'int');
 
 m = es5.match('3. + 4');
-assert.equal(s(m).ti(), 'float');
+assert.strictEqual(s(m).ti(), 'float');
 assert.strictEqual(s(m).rb(), 7);
 
 m = es5.match('0 % ((4 - 5.2) * 6) / 8 - 5;');
-assert.equal(s(m).ti(), 'float');
+assert.strictEqual(s(m).ti(), 'float');
 
 m = es5.match('true');
-assert.equal(s(m).ti(), 'bool');
+assert.strictEqual(s(m).ti(), 'bool');
 assert.strictEqual(s(m).rb(), true);
 
 m = es5.match('false;');
-assert.equal(s(m).ti(), 'bool');
+assert.strictEqual(s(m).ti(), 'bool');
 assert.strictEqual(s(m).rb(), false);
 
 // m = es5.match('"hello";');
-// assert.equal(s(m).ti(), 'string');
+// assert.strictEqual(s(m).ti(), 'string');
 
 m = es5.match('"hello" + 5');
-assert.equal(s(m).ti(), 'string');
+assert.strictEqual(s(m).ti(), 'string');
 
 m = es5.match("'hello' + 5.3");
-assert.equal(s(m).ti(), 'string');
+assert.strictEqual(s(m).ti(), 'string');
 
 m = es5.match("x = 'hello'");
-assert.equal(s(m).ti(), 'string');
+assert.strictEqual(s(m).ti(), 'string');
 assert.strictEqual(s(m).rb(), 'hello');
 
 m = es5.match("x = {}");
-assert.equal(s(m).ti(), 'dict');
+assert.strictEqual(s(m).ti(), 'dict');
 
 m = es5.match("({foo: true})");
-assert.equal(s(m).ti(), 'dict');
+assert.strictEqual(s(m).ti(), 'dict');
 
 m = es5.match("({foo: true, bar: 0})");
-assert.equal(s(m).ti(), 'dict');
+assert.strictEqual(s(m).ti(), 'dict');
 
 m = es5.match("({foo: true, bar: 0,})");
-assert.equal(s(m).ti(), 'dict');
+assert.strictEqual(s(m).ti(), 'dict');
 
-global.env = { 'foo': { type: 'int' } };
+tokenTypes.setVal('foo', 'int');
 m = es5.match("foo");
-assert.equal(s(m).ti(), 'int');
+assert.strictEqual(s(m).ti(), 'int');
 
-global.env = { 'foo': { type: 'int' } };
+tokenTypes.setVal('foo', 'int');
 m = es5.match("foo + 7");
-assert.equal(s(m).ti(), 'int');
+assert.strictEqual(s(m).ti(), 'int');
 
-global.env = { 'foo': { type: 'int' } };
+tokenTypes.setVal('foo', 'int');
 m = es5.match("foo + 7.3");
-assert.equal(s(m).ti(), 'float');
+assert.strictEqual(s(m).ti(), 'float');
 
-global.env = { 'foo': { type: 'int' } };
+tokenTypes.setVal('foo', 'int');
 m = es5.match("7.1 + foo");
-assert.equal(s(m).ti(), 'float');
+assert.strictEqual(s(m).ti(), 'float');
 
-global.env = {
-  'foo': {
-    ret: 'int',
-    type: 'fun',
-    args: [],
-  },
-};
+tokenTypes.setVal('foo', 'fun');
+tokenTypes.setVal('foo', 'int');
 m = es5.match("foo()");
-assert.equal(s(m).ti(), 'int');
+assert.strictEqual(s(m).ti(), 'int');
 
-global.env = {
-  'foo': {
-    ret: 'int',
-    type: 'fun',
-    args: ['int', 'string'],
-  },
-};
+tokenTypes.setVal('foo', 'fun');
+tokenTypes.setVal('foo', 'int');
 m = es5.match("foo(12, 'hi')");
-assert.equal(s(m).ti(), 'int');
+assert.strictEqual(s(m).ti(), 'int');
 
 m = es5.match("x = []");
-assert.equal(s(m).ti(), 'list');
+assert.strictEqual(s(m).ti(), 'list');
 
 m = es5.match("[1, 2, 3]");
-assert.equal(s(m).ti(), 'list');
+assert.strictEqual(s(m).ti(), 'list');
 
 // set('+e');
 // var retStatus = 0;
@@ -153,7 +129,7 @@ assert.equal(s(m).ti(), 'list');
 //   try {
 //     m = es5.match(cat(ls('*.sh')[0]).toString());
 //     assert.ok(m.succeeded());
-//     assert.equal(s(m).ti(), cat(ls('*.js')[0]));
+//     assert.strictEqual(s(m).ti(), cat(ls('*.js')[0]));
 //   } catch (e) {
 //     retStatus = 1;
 //     echo('test ' + JSON.stringify(test) + ' failed');

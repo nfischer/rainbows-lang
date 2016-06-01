@@ -1,5 +1,9 @@
 var rbInterp;
 
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+  var tokenTypes = require('./types');
+}
+
 (function () {
   function arithHelper(x, y) {
     var a = x.ti();
@@ -63,8 +67,8 @@ var rbInterp;
     decimalLiteral_bothParts: function (x, y, z, w) { return parseFloat(this.interval.contents); },
     Block: function (a, b, c) { b.rb(); return null; },
     FunctionDeclaration: function (a, id, c, d, e, f, body, h) {
-      if (!env[id.interval.contents]) {
-        env[id.interval.contents] = {
+      if (!tokenTypes.internal[id.interval.contents]) {
+        tokenTypes.internal[id.interval.contents] = {
           type: 'fun',
           ret: 'unknown',
           args: [], // TODO: fix this
@@ -87,7 +91,7 @@ var rbInterp;
     VariableDeclaration: function (x, y) {
       var type = y.rb();
       if (x.interval.contents.match(idRegex))
-        setEnv(x.interval.contents, type);
+        tokenTypes.setVal(x.interval.contents, type);
       return type;
     },
     Initialiser: function (x, y) {
@@ -111,22 +115,22 @@ var rbInterp;
     PostfixExpression_postIncrement: function(a, b, c) {
       a.rb();
       if (a.interval.contents.match(idRegex))
-        setEnv(a.interval.contents, 'int');
+        tokenTypes.setVal(a.interval.contents, 'int');
     },
     PostfixExpression_postDecrement: function(a, b, c) {
       a.rb();
       if (a.interval.contents.match(idRegex))
-        setEnv(a.interval.contents, 'int');
+        tokenTypes.setVal(a.interval.contents, 'int');
     },
     AssignmentExpression_assignment: (x, y, z) => {
       var type = z.rb();
       if (x.interval.contents.match(idRegex))
-        setEnv(x.interval.contents, type);
+        tokenTypes.setVal(x.interval.contents, type);
       return type;
     },
     identifier: function (x) {
       // use the global env
-      return getEnv(x.interval.contents);
+      return tokenTypes.getVal(x.interval.contents);
     },
     IterationStatement: (a) => a.rb(),
     IterationStatement_doWhile: function(a, b, c, d, e, f, g) {
@@ -156,19 +160,19 @@ var rbInterp;
     IterationStatement_forIn: function(a, b, lhs, c, expr, d, stmt) {
       lhs.rb();
       var type = expr.rb();
-      setEnv(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
+      tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
       stmt.rb();
       return null;
     },
     IterationStatement_forInVar: function(a, b, _var, lhs, c, expr, d, stmt) {
       lhs.rb();
       var type = expr.rb();
-      setEnv(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
+      tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
       stmt.rb();
       return null;
     },
     CallExpression_memberExpExp: function(x, y) {
-      return getEnv(x.interval.contents);
+      return tokenTypes.getVal(x.interval.contents);
     },
     PrimaryExpression_parenExpr: (x, y, z) => y.rb(),
     ObjectLiteral: (x) => JSON.parse(x.interval.contents),

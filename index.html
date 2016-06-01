@@ -12,6 +12,7 @@
 <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" type="text/css" href="src/rainbows-types.css">
 <link rel="stylesheet" type="text/css" href="src/main.css">
+<script type="text/javascript" src="src/types.js"></script>
 <script type="text/javascript" src="src/index.js"></script>
 <script type="text/javascript" src="src/rb-examples.js"></script>
 <script type="text/javascript" src="lib/ohm/dist/ohm.min.js"></script>
@@ -1038,7 +1039,9 @@ ES5Lax <: ES5 {
     var widget;
     var m = grammars.ES5.match(expr);
     if (m.succeeded()) {
+      tokenTypes.refresh();
       return s(m).ti();
+    }
     //} else {
     //  var timeout;
     //  editor.on('keyHandled', function() {
@@ -1063,14 +1066,12 @@ ES5Lax <: ES5 {
     //      widget = widget || editor.addLineWidget(parseInt(lineNum), d);
     //    }
     //  }, 30);
-    }
   }
 </script>
 <script type="text/javascript">
   var updateSlider;
   $(document).ready(function() {
     editor.setValue(rbExamples[0].code);
-    env = Object.assign({}, defaultEnv); // copy the default environment
     // Add buttons for the other examples
     var table = document.getElementById('main-table');
     var row = table.insertRow(1);
@@ -1081,13 +1082,13 @@ ES5Lax <: ES5 {
       button.appendChild(document.createTextNode(ex.name));
       mydiv.appendChild(button);
       $(button).click(function() {
-        env = Object.assign({}, defaultEnv); // copy the default environment
+        tokenTypes.refresh(true);
         editor.setValue(ex.code);
       });
     });
   });
-  $(function() {
-    var rbTypeList = ['no type', 'string', 'int', 'float', 'bool', 'list', 'dict'];
+  $(document).ready(function () {
+    var rbTypeList = ['default type', 'string', 'int', 'float', 'bool', 'list', 'dict'];
     var matchingGrey = $('.cm-s-default').css('color');
     var rbColorList = rbTypeList.map(x => $('.rb-type-' + x).css('color') || matchingGrey);
     var node = {}; // hack: use an object here, because of scoping issues
@@ -1096,7 +1097,10 @@ ES5Lax <: ES5 {
       node.value.css('background', rbColorList[ui.value]);
 
       // Remember the user's type selection
-      setEnv(window.currentToken, (myType === 'no type' ? 'unknown' : myType));
+      if (myType === 'default type')
+        delete tokenTypes.selected[window.currentToken];
+      else
+        tokenTypes.setVal(window.currentToken, myType, {manual: true});
 
       addType(node.value, myType); // show the link hint for the slider UI
       addType($('#cur-token'), myType); // show the link hint for the slider UI
@@ -1142,6 +1146,7 @@ ES5Lax <: ES5 {
 <div class="color-changer">
 <p id="msg"></p>
 <div id="slider-1" myval="40"=></div>
+<input type="button" value="Reset" onclick="var s = $('#slider-1'); s.slider('value', 0); updateSlider(null, {value: 0}); main()" id="button1">
 </div>
 </td>
 </tr>

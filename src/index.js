@@ -1,17 +1,6 @@
 var editor;
 var jscode;
 
-// TODO: actually check for these built-ins
-var defaultEnv = {
-  range:     { type: 'list' },
-  raw_input: { type: 'fun',
-               ret: 'string',
-               args: [ 'string' ] },
-  '*.join':  { type: 'fun',
-               ret: 'string',
-               args: [] },
-};
-
 // This will modify the given DOM node to be styled after the given rainbows
 // type
 function addType(node, type, opts) {
@@ -65,21 +54,6 @@ function getWordUnderCursor() {
   return editor.getRange(word.anchor, word.head);
 }
 
-function getEnv(token) {
-  var v = env[token] || 'unknown';
-  return v.ret || v.type || v;
-}
-
-function setEnv(token, value) {
-  if (env[token] && env[token].type === 'fun')
-    env[token].ret = value;
-  else {
-    env[token] = {
-      type: value,
-    };
-  }
-}
-
 function underlineArguments(funName, line, argTypes) {
   var k = -1;
   if (!argTypes) return;
@@ -98,12 +72,12 @@ function underlineArguments(funName, line, argTypes) {
 }
 
 function makeTypedFun(token, lineNode) {
-  var oldType = getEnv(token);
+  var oldType = tokenTypes.getVal(token);
   var myArgs = lineNode.text().match(RegExp(token + '\\(([^)]*)\\)'))[1].split(/,\s*/);
-  var myArgTypes = myArgs.map(x => getEnv(x));
+  var myArgTypes = myArgs.map(x => tokenTypes.getVal(x));
   underlineArguments(token, lineNode, myArgTypes);
 
-  env[token] = {
+  tokenTypes.internal[token] = {
     type: 'fun',
     ret: oldType,
     args: myArgTypes,
@@ -126,18 +100,20 @@ function appendTypeClass(originalClassName) {
       if ($(this).parent().text().match(output + ' *\\(')) {
         makeTypedFun(output, $(this).parent());
       }
-      addType($(this), getEnv(output));
+      addType($(this), tokenTypes.getVal(output));
     } else {
-      addType($(this), getEnv(output));
-      if (env[output] && env[output].type === 'fun') {
-        underlineArguments(output, $(this).parent(), env[output].args);
+      addType($(this), tokenTypes.getVal(output));
+      if (tokenTypes.internal[output] && tokenTypes.internal[output].type === 'fun') {
+        underlineArguments(output, $(this).parent(), tokenTypes.internal[output].args);
       }
     }
   });
 }
+$(document).ready(function() {
+  tokenTypes.refresh(true);
+});
 function main() {
   // TODO: clear out `env` for any token that isn't currently present
-
   getJsType(editor.getValue());
 
   // literals
@@ -157,7 +133,7 @@ function main() {
 
   // now interpret it
   setTimeout(function() {
-    console.log(interp(editor.getValue()));
+    // console.log(interp(editor.getValue()));
   }, 0);
 }
 
@@ -199,7 +175,7 @@ $(document).ready(function() {
       do import short while
       double in static with`.split(/[\s\n]+/);
 
-  editor.on('cursorActivity', function() {
+  function colorWord() {
     // we selected a new token, so let's show that
     var oldToken = window.currentToken;
     var newToken = getWordUnderCursor().match(/^[a-zA-Z_][a-zA-Z0-9_]*$/);
@@ -224,6 +200,13 @@ $(document).ready(function() {
       $('#cur-token').text(newToken);
       updateSlider(null, { value: $('#slider-1').slider('value')} );
     }
+  }
+
+  editor.on('focus', function() {
+    colorWord();
+  });
+  editor.on('mousedown', function() {
+    colorWord();
   });
 
   $('#rainbows-text').next().attr('id', 'rainbows-editor');
