@@ -133,7 +133,7 @@ function main() {
 
   // now interpret it
   setTimeout(function() {
-    // console.log(interp(editor.getValue()));
+    jscode.setValue(JSON.stringify(interp(editor.getValue())));
   }, 0);
 }
 

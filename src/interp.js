@@ -5,6 +5,10 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 }
 
 (function () {
+  function truthy(cond) {
+    return cond !== false;
+  }
+  var env;
   function arithHelper(x, y) {
     var a = x.ti();
     var b = y.ti();
@@ -20,7 +24,10 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   }
   var idRegex = /[a-zA-Z_][a-zA-Z0-9_]*/;
   rbInterp = {
-    Program: function(x, y) { var lines = y.rb(); return lines[lines.length-1]; },
+    Program: function(x, y) {
+      env = {}; // clear it out
+      var lines = y.rb(); return lines[lines.length-1];
+    },
     SourceElement: function(x) { return x.rb(); },
     ExpressionStatement: function (x, y) { return x.rb(); },
     Expression: function (x) { return x.rb(); },
@@ -28,41 +35,22 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     EqualityExpression_notEqual: (x, y, z) => x.rb() !== z.rb(),
     EqualityExpression_eq: (x, y, z) => x.rb() === z.rb(),
     EqualityExpression_notEq: (x, y, z) => x.rb() !== z.rb(),
+    RelationalExpression_lt: (a, b, c) => a.rb() < c.rb(),
+    RelationalExpression_gt: (a, b, c) => a.rb() > c.rb(),
+    RelationalExpression_le: (a, b, c) => a.rb() <= c.rb(),
+    RelationalExpression_ge: (a, b, c) => a.rb() >= c.rb(),
     AdditiveExpression_add: (x, _, y) => x.rb() + y.rb(),
     AdditiveExpression_sub: (x, _, y) => x.rb() - y.rb(),
-    MultiplicativeExpression_mul: function (x, _, y) {
-      var retType = arithHelper(x, y);
-      var ret = x.rb() / y.rb();
-      switch (retType) {
-        case 'string':
-          throw new Error('Strings cannot be multiplied');
-        default:
-          return ret;
-      }
-    },
+    MultiplicativeExpression_mul: (x, _, y) => x.rb() * y.rb(),
     MultiplicativeExpression_div: function (x, _, y) {
       var retType = arithHelper(x, y);
       var ret = x.rb() / y.rb();
-      switch (retType) {
-        case 'string':
-          throw new Error('Strings cannot be divided');
-        case 'int':
-          return Math.floor(ret);
-        default:
-          return ret;
-      }
+      return retType === 'int' ? Math.floor(ret) : ret;
     },
-    MultiplicativeExpression_mod: function (x, _, y) {
-      var retType = arithHelper(x, y);
-      var ret = x.rb() / y.rb();
-      switch (retType) {
-        case 'string':
-          throw new Error('Strings cannot be modded');
-        default:
-          return ret;
-      }
-    },
+    MultiplicativeExpression_mod: (x, _, y) => x.rb() % y.rb(),
     UnaryExpression_unaryMinus:  (x, y) => -1 * y.rb(),
+    UnaryExpression_unaryPlus:  (x, y) => y.rb(),
+    UnaryExpression_lnot:  (x, y) => !y.rb(),
     decimalLiteral_integerOnly: function (x, y) { return parseInt(this.interval.contents); },
     decimalLiteral_bothParts: function (x, y, z, w) { return parseFloat(this.interval.contents); },
     Block: function (a, b, c) { b.rb(); return null; },
@@ -79,28 +67,29 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     FunctionBody: function (a, b) { return b.rb(); },
     IfStatement: function (a, b, cond, d, expr, f, elseCase) {
-      cond.rb();
-      expr.rb();
-      elseCase.rb();
+      if (truthy(cond.rb())) {
+        expr.rb();
+      } else {
+        elseCase.rb();
+      }
       return null;
     },
     VariableStatement: function (x, y, z) {
-      y.rb(); // set these values!
-      return 'list';
+      return y.rb();
     },
     VariableDeclaration: function (x, y) {
-      var type = y.rb();
-      if (x.interval.contents.match(idRegex))
-        tokenTypes.setVal(x.interval.contents, type);
-      return type;
+      var val = y.rb();
+      val = val[val.length-1];
+      env[x.interval.contents] = val; // override
+      return val;
     },
     Initialiser: function (x, y) {
       var type = y.rb();
       return type;
     },
     NonemptyListOf: function (x, y, z) {
-      x.rb(); // initialize these values!
-      return 'list';
+      var list = x.rb();
+      return list[list.length-1];
     },
     TryStatement: function (x) { return x.rb(); },
     TryStatement_tryCatch: function (x, y, z) { y.rb(); z.rb(); return null; },
@@ -113,51 +102,53 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     booleanLiteral: function (x) { return JSON.parse(this.interval.contents); },
     ReturnStatement: (x, y, z, w) => null, // TODO: fix this
     PostfixExpression_postIncrement: function(a, b, c) {
-      a.rb();
-      if (a.interval.contents.match(idRegex))
-        tokenTypes.setVal(a.interval.contents, 'int');
+      return env[a.interval.contents]++;
     },
     PostfixExpression_postDecrement: function(a, b, c) {
-      a.rb();
-      if (a.interval.contents.match(idRegex))
-        tokenTypes.setVal(a.interval.contents, 'int');
+      return env[a.interval.contents]--;
+    },
+    UnaryExpression_preIncrement: function(a, b) {
+      return ++env[b.interval.contents];
+    },
+    UnaryExpression_preDecrement: function(a, b) {
+      return --env[b.interval.contents];
     },
     AssignmentExpression_assignment: (x, y, z) => {
-      var type = z.rb();
-      if (x.interval.contents.match(idRegex))
-        tokenTypes.setVal(x.interval.contents, type);
-      return type;
+      var val = z.rb();
+      env[x.interval.contents] = val; // override
+      return val;
     },
     identifier: function (x) {
-      // use the global env
-      return tokenTypes.getVal(x.interval.contents);
+      return env[x.interval.contents];
     },
     IterationStatement: (a) => a.rb(),
     IterationStatement_doWhile: function(a, b, c, d, e, f, g) {
-      b.rb();
-      e.rb();
-      return 'null';
+      do b.rb(); while (truthy(e.rb()));
+      return null;
     },
+    _terminal: () => null,
     IterationStatement_whileDo: function(a, b, c, d, e) {
-      c.rb();
-      e.rb();
-      return 'null';
+      while (truthy(c.rb())) {
+        e.rb();
+      }
+      return null;
     },
     IterationStatement_for3: function(a, b, c, d, e, f, g, h, i) {
-      c.rb();
-      e.rb();
-      g.rb();
-      i.rb();
-      return 'null';
+      // TODO(nate): fix
+      for (c.rb(); truthy(e.rb()); g.rb()) {
+        i.rb();
+      }
+      return null;
     },
     IterationStatement_for3var: function(a, b, _var, c, d, e, f, g, h, i) {
-      c.rb();
-      e.rb();
-      g.rb();
-      i.rb();
-      return 'null';
+      // TODO(nate): fix
+      for (c.rb(); truthy(e.rb()); g.rb()) {
+        i.rb();
+      }
+      return null;
     },
     IterationStatement_forIn: function(a, b, lhs, c, expr, d, stmt) {
+      // TODO(nate): fix
       lhs.rb();
       var type = expr.rb();
       tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
@@ -165,6 +156,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return null;
     },
     IterationStatement_forInVar: function(a, b, _var, lhs, c, expr, d, stmt) {
+      // TODO(nate): fix
       lhs.rb();
       var type = expr.rb();
       tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
@@ -172,10 +164,11 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return null;
     },
     CallExpression_memberExpExp: function(x, y) {
-      return tokenTypes.getVal(x.interval.contents);
+      // TODO(nate): fix
+      return 'fix me';
     },
     PrimaryExpression_parenExpr: (x, y, z) => y.rb(),
-    ObjectLiteral: (x) => JSON.parse(x.interval.contents),
+    ObjectLiteral: (x) => eval(x.interval.contents),
   };
 })();
 

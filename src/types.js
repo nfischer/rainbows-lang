@@ -4,7 +4,7 @@ var tokenTypes = {
     raw_input: { type: 'fun',
                  ret: 'string',
                  args: [ 'string' ] },
-    '*.join':  { type: 'fun',
+    'mylist#join':  { type: 'fun',
                  ret: 'string',
                  args: [] },
     'print':   { type: 'fun',
@@ -26,6 +26,8 @@ var tokenTypes = {
       v = this.internal[token];
     else if (this.inferred.hasOwnProperty(token))
       v = this.inferred[token];
+    else if (this.builtin.hasOwnProperty(token))
+      v = this.builtin[token];
     else
       v = 'unknown';
     // var v = this.internal[token] || 'unknown';

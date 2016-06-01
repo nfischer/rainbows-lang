@@ -47,12 +47,21 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     EqualityExpression_notEqual: (x, y, z) => 'bool',
     EqualityExpression_eq: (x, y, z) => 'bool',
     EqualityExpression_notEq: (x, y, z) => 'bool',
+    RelationalExpression_lt: (a, b, c) => 'bool',
+    RelationalExpression_gt: (a, b, c) => 'bool',
+    RelationalExpression_le: (a, b, c) => 'bool',
+    RelationalExpression_ge: (a, b, c) => 'bool',
+    _terminal: () => 'int',
     AdditiveExpression_add: (a, b, c) => arithHelper(a, b, c),
     AdditiveExpression_sub: (a, b, c) => arithHelper(a, b, c),
     MultiplicativeExpression_mul: (a, b, c) => arithHelper(a, b, c),
     MultiplicativeExpression_div: (a, b, c) => arithHelper(a, b, c),
     MultiplicativeExpression_mod: (a, b, c) => arithHelper(a, b, c),
     UnaryExpression_unaryMinus:  (x, y) => y.ti(),
+    UnaryExpression_unaryPlus:  (x, y) => y.ti(),
+    UnaryExpression_preIncrement:  (x, y) => y.ti(),
+    UnaryExpression_preDecrement:  (x, y) => y.ti(),
+    UnaryExpression_lnot:  (x, y) => y.ti(),
     decimalLiteral_integerOnly: function (x, y) { return 'int' },
     decimalLiteral_bothParts: function (x, y, z, w) { return 'float' },
     MemberExpression_propRefExp: function (a, b, c) {
@@ -140,7 +149,6 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return type
     },
     identifier: function (x) {
-      // use the global env
       return tokenTypes.getVal(x.interval.contents)
     },
     IterationStatement: (a) => a.ti(),
@@ -180,10 +188,11 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       var type = expr.ti();
       tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
       stmt.ti();
-      return 'null'
+      return 'null';
     },
     CallExpression_memberExpExp: function(x, y) {
-      return tokenTypes.getVal(x.interval.contents)
+      console.log(tokenTypes.getVal(x.interval.contents.replace(/\./, '#')));
+      return tokenTypes.getVal(x.interval.contents.replace(/\./, '#'));
     },
     PrimaryExpression_parenExpr: (x, y, z) => y.ti(),
     ObjectLiteral_noTrailingComma: function (a, b, c) {
@@ -191,7 +200,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       nameSpace += a.interval.contents + '#';
       b.ti();
       nameSpace = oldNameSpace;
-      return 'dict'
+      return 'dict';
     },
     ObjectLiteral_trailingComma: function (a, b, c, d) {
       var oldNameSpace = nameSpace;
