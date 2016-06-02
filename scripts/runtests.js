@@ -29,6 +29,7 @@ s.addOperation(
 var m;
 
 function doTest(expr, type, val, setup) {
+  tokenTypes.refresh(true);
   if (setup)
     setup();
   var m = es5.match(expr);
