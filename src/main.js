@@ -133,8 +133,14 @@ function main() {
 
   // now interpret it
   setTimeout(function() {
-    jscode.setValue(JSON.stringify(interp(editor.getValue())));
-  }, 0);
+    var val = interp(editor.getValue());
+    var result;
+    if (val === null || val === undefined)
+      result = '[no expression value]';
+    else
+      result = JSON.stringify(val);
+    jscode.setValue(result);
+  }, 10);
 }
 
 $(document).ready(function() {
@@ -247,3 +253,108 @@ function domToText() {
   var serializedText = serializedLines.join('\n');
   return serializedText;
 }
+
+var s;
+var grammars;
+$(document).ready(function() {
+  grammars = ohm.grammarsFromScriptElements();
+  s = grammars.ES5.semantics();
+  s.addOperation(
+      'ti()',
+      typeInference);
+  s.addOperation(
+      'rb()',
+      rbInterp);
+});
+
+function interp(expr) {
+  var m = grammars.ES5.match(expr);
+  if (m.succeeded()) {
+    return s(m).rb();
+  } else {
+    throw "Error";
+  }
+}
+
+// This accepts a javascript expression and returns a string denoting its type
+function getJsType(expr) {
+  var widget;
+  var m = grammars.ES5.match(expr);
+  if (m.succeeded()) {
+    tokenTypes.refresh();
+    return s(m).ti();
+  }
+  //} else {
+  //  var timeout;
+  //  editor.on('keyHandled', function() {
+  //    if(timeout) {
+  //      clearTimeout(timeout);
+  //      timeout = null;
+  //      setTimeout(function() {
+  //        if (widget) widget.clear();
+  //        widget = null;
+  //      }, 200);
+  //    }
+  //  });
+  //  timeout = setTimeout(function() {
+  //    if (m.message) {
+  //      try {
+  //        var lineNum = m.message.match(/Line: (\d+),/)[1];
+  //      } catch(e) {
+  //        lineNum = 14;
+  //      }
+  //      var d = document.createElement('div');
+  //      d.appendChild(document.createTextNode(m.message));
+  //      widget = widget || editor.addLineWidget(parseInt(lineNum), d);
+  //    }
+  //  }, 30);
+}
+
+var updateSlider;
+$(document).ready(function() {
+  editor.setValue(rbExamples[0].code);
+  // Add buttons for the other examples
+  var table = document.getElementById('main-table');
+  var row = table.insertRow(1);
+  var mydiv = document.createElement('div');
+  row.appendChild(mydiv);
+  rbExamples.forEach(function(ex) {
+    var button = document.createElement('button');
+    button.appendChild(document.createTextNode(ex.name));
+    mydiv.appendChild(button);
+    $(button).click(function() {
+      tokenTypes.refresh(true);
+      editor.setValue(ex.code);
+    });
+  });
+});
+$(document).ready(function () {
+  var rbTypeList = ['default type', 'string', 'int', 'float', 'bool', 'list', 'dict'];
+  var matchingGrey = $('.cm-s-default').css('color');
+  var rbColorList = rbTypeList.map(x => $('.rb-type-' + x).css('color') || matchingGrey);
+  var node = {}; // hack: use an object here, because of scoping issues
+  updateSlider = function (event, ui) {
+    var myType = rbTypeList[ui.value];
+    node.value.css('background', rbColorList[ui.value]);
+
+    // Remember the user's type selection
+    if (myType === 'default type')
+      delete tokenTypes.selected[window.currentToken];
+    else
+      tokenTypes.setVal(window.currentToken, myType, {manual: true});
+
+    addType(node.value, myType); // show the link hint for the slider UI
+    addType($('#cur-token'), myType); // show the link hint for the slider UI
+    main(); // infer types, but now we'll remember the user's manual change
+  }
+  $('#slider-1').slider({
+    min: 0,
+    max: rbTypeList.length - 1,
+    value: 0,
+    slide: updateSlider,
+  });
+  node.value = $('.ui-state-default');
+  node.value.css('background', matchingGrey);
+  $('.ui-widget-content').css('background', '#E0E9EC');
+  $('#slider-1').slider('option', 'disabled', true);
+})

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node scripts/runtests.js",
     "build": "ohm-builder.js src/index.generator.html index.html",
-    "build:watch": "watch 'npm run build' src",
+    "build:watch": "watch 'ohm-builder.js src/index.generator.html index.html' src",
     "deploy": "node scripts/deploy.js"
   },
   "repository": {

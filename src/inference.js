@@ -14,7 +14,8 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     var b = y.ti();
     var opStr = op.interval.contents;
     var ret;
-    ['dict', 'list', 'string', 'float', 'int', 'bool'].forEach(x => {
+    // most constrained types go first
+    ['dict', 'list', 'bool', 'string', 'float', 'int'].forEach(x => {
       if (ret) return;
       if (a === x || b === x)
         ret = x;
@@ -71,7 +72,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       // TODO(nate): fix this, I'm just not sure how
       return 'unknown'
     },
-    Block: function (a, b, c) { b.ti(); return 'null' },
+    Block: function (a, b, c) { b.ti(); return 'void' },
     FunctionDeclaration: function (a, id, c, d, e, f, body, h) {
       functionName = id.interval.contents;
       if (!tokenTypes.inferred[functionName]) {
@@ -82,45 +83,43 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
         };
         body.ti();
       }
-      return 'null'
+      return 'void';
     },
     FunctionBody: function (a, b) {
-      var lines = b.ti();
-      return lines[lines.length-1]
+      b.ti();
+      return 'void';
     },
     IfStatement: function (a, b, cond, d, expr, f, elseCase) {
       cond.ti();
       expr.ti();
       elseCase.ti();
-      return 'null'
+      return 'void';
     },
     VariableStatement: function (x, y, z) {
-      y.ti(); // set these values!
-      return 'list'
+      y.ti();
+      return 'void';
+    },
+    VariableDeclarationList: function (x) {
+      return x.ti();
     },
     VariableDeclaration: function (x, y) {
-      var type = y.ti();
+      var type = y.ti(); // this is a list
       type = type[type.length-1];
       if (x.interval.contents.match(idRegex))
         tokenTypes.setVal(x.interval.contents, type);
       return type
     },
-    Initialiser: function (x, y) {
-      var type = y.ti();
-      return type
-    },
-    EmptyListOf: () => 'list',
-    NonemptyListOf: function (x, y, z) {
-      // only x has anything in it
-      x.ti(); // initialize these values!
-      return 'list'
+    Initialiser: (x, y) => y.ti(),
+    EmptyListOf: () => 'void',
+    NonemptyListOf: function (first, _sep, others) {
+      return [first.ti()].concat(others.ti());
     },
     TryStatement: function (x) { return x.ti() },
-    TryStatement_tryCatch: function (x, y, z) { y.ti(); z.ti(); return 'null' },
-    TryStatement_tryFinally: function (x, y, z) { y.ti(); z.ti(); return 'null' },
-    TryStatement_tryCatchFinally: function (x, y, z, w) { y.ti(); z.ti(); w.ti(); return 'null' },
-    Catch: function (a, b, c, d, e) { c.ti(); e.ti(); return 'null' },
-    Finally: function (a, b) { b.ti(); return 'null' },
+    TryStatement_tryCatch: function (x, y, z) { y.ti(); z.ti(); return 'void' },
+    TryStatement_tryFinally: function (x, y, z) { y.ti(); z.ti(); return 'void' },
+    TryStatement_tryCatchFinally: function (x, y, z, w) { y.ti(); z.ti(); w.ti(); return 'void' },
+    Catch: function (a, b, c, d, e) { c.ti(); e.ti(); return 'void' },
+    Finally: function (a, b) { b.ti(); return 'void' },
     ArrayLiteral: function (x, y, z) { return 'list' },
     stringLiteral: function (x, y, z) { return 'string' },
     booleanLiteral: function (x) { return 'bool' },
@@ -129,7 +128,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       if (type !== 'unknown') {
         tokenTypes.setVal(functionName, type);
       }
-      return 'null'
+      return 'void'
     },
     PostfixExpression_postIncrement: function(a, b, c) {
       a.ti();
@@ -155,43 +154,45 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     IterationStatement_doWhile: function(a, b, c, d, e, f, g) {
       b.ti();
       e.ti();
-      return 'null'
+      return 'void'
     },
     IterationStatement_whileDo: function(a, b, c, d, e) {
       c.ti();
       e.ti();
-      return 'null'
+      return 'void'
     },
     IterationStatement_for3: function(a, b, c, d, e, f, g, h, i) {
       c.ti();
       e.ti();
       g.ti();
       i.ti();
-      return 'null'
+      return 'void'
     },
     IterationStatement_for3var: function(a, b, _var, c, d, e, f, g, h, i) {
       c.ti();
       e.ti();
       g.ti();
       i.ti();
-      return 'null'
+      return 'void'
     },
     IterationStatement_forIn: function(a, b, lhs, c, expr, d, stmt) {
       lhs.ti();
       var type = expr.ti();
+      // TODO(nate): actually infer the type, don't just do a lame guess
       tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
       stmt.ti();
-      return 'null'
+      return 'void'
     },
     IterationStatement_forInVar: function(a, b, _var, lhs, c, expr, d, stmt) {
       lhs.ti();
       var type = expr.ti();
+      // TODO(nate): actually infer the type, don't just do a lame guess
       tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
       stmt.ti();
-      return 'null';
+      return 'void';
     },
     CallExpression_memberExpExp: function(x, y) {
-      console.log(tokenTypes.getVal(x.interval.contents.replace(/\./, '#')));
+      // console.log(tokenTypes.getVal(x.interval.contents.replace(/\./, '#')));
       return tokenTypes.getVal(x.interval.contents.replace(/\./, '#'));
     },
     PrimaryExpression_parenExpr: (x, y, z) => y.ti(),

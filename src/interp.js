@@ -29,7 +29,9 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       var lines = y.rb(); return lines[lines.length-1];
     },
     SourceElement: function(x) { return x.rb(); },
-    ExpressionStatement: function (x, y) { return x.rb(); },
+    ExpressionStatement: function (x, y) {
+      return x.rb();
+    },
     Expression: function (x) { return x.rb(); },
     EqualityExpression_equal: (x, y, z) => x.rb() === z.rb(),
     EqualityExpression_notEqual: (x, y, z) => x.rb() !== z.rb(),
@@ -75,21 +77,23 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return null;
     },
     VariableStatement: function (x, y, z) {
-      return y.rb();
+      console.log(typeof y.rb());
+      return null;
     },
     VariableDeclaration: function (x, y) {
       var val = y.rb();
+      console.log(val);
       val = val[val.length-1];
       env[x.interval.contents] = val; // override
+      return null;
       return val;
     },
     Initialiser: function (x, y) {
       var type = y.rb();
       return type;
     },
-    NonemptyListOf: function (x, y, z) {
-      var list = x.rb();
-      return list[list.length-1];
+    NonemptyListOf: function (first, _sep, others) {
+      return [first.rb()].concat(others.rb());
     },
     TryStatement: function (x) { return x.rb(); },
     TryStatement_tryCatch: function (x, y, z) { y.rb(); z.rb(); return null; },
@@ -97,7 +101,9 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     TryStatement_tryCatchFinally: function (x, y, z, w) { y.rb(); z.rb(); w.rb(); return null; },
     Catch: function (a, b, c, d, e) { c.rb(); e.rb(); return null; },
     Finally: function (a, b) { b.rb(); return null; },
-    ArrayLiteral: function (x, y, z) { return JSON.parse(this.interval.contents); },
+    ArrayLiteral: function (x, y, z) {
+      return y.rb();
+    },
     stringLiteral: function (x, y, z) { return eval(this.interval.contents); },
     booleanLiteral: function (x) { return JSON.parse(this.interval.contents); },
     ReturnStatement: (x, y, z, w) => null, // TODO: fix this
@@ -167,8 +173,23 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       // TODO(nate): fix
       return 'fix me';
     },
+    MemberExpression_propRefExp: (a, b, c) => a.rb()[c.interval.contents],
+    MemberExpression_arrayRefExp: (a, b, c, d) => a.rb()[c.rb()],
     PrimaryExpression_parenExpr: (x, y, z) => y.rb(),
-    ObjectLiteral: (x) => eval(x.interval.contents),
+    ObjectLiteral_noTrailingComma: (a, b, c) => {
+      var ret = {};
+      b.rb().forEach((x) => {
+        ret[x.key] = x.val;
+      });
+      return ret;
+    },
+    PropertyAssignment_simple: function (a, b, c) {
+      return {
+        key: a.interval.contents,
+        val: c.rb(),
+      };
+    },
+    ObjectLiteral_trailingComma: (a, b, c, d) => eval(x.interval.contents),
   };
 })();
 
