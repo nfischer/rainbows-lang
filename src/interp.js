@@ -92,9 +92,8 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       var type = y.rb();
       return type;
     },
-    NonemptyListOf: function (first, _sep, others) {
-      return [first.rb()].concat(others.rb());
-    },
+    EmptyListOf: () => [],
+    NonemptyListOf: (first, _sep, others) => [first.rb()].concat(others.rb()),
     TryStatement: function (x) { return x.rb(); },
     TryStatement_tryCatch: function (x, y, z) { y.rb(); z.rb(); return null; },
     TryStatement_tryFinally: function (x, y, z) { y.rb(); z.rb(); return null; },
@@ -125,7 +124,18 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return val;
     },
     identifier: function (x) {
-      return env[x.interval.contents];
+      var ret = env[x.interval.contents];
+      var type = this.ti();
+      if (type === 'string')
+        return ret.toString();
+      else if (type === 'int')
+        return parseInt(ret);
+      else if (type === 'int')
+        return parseInt(ret);
+      else if (type === 'float')
+        return parseFloat(ret);
+      else
+        return ret;
     },
     IterationStatement: (a) => a.rb(),
     IterationStatement_doWhile: function(a, b, c, d, e, f, g) {

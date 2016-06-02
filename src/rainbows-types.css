@@ -6,41 +6,58 @@
   color: grey !important;
 }
 
-/* Now add in rainbows types */
-.rb-type-bool {
-  color: #CE63A1 !important;
-}
-.rb-type-string {
-  color: red !important;
-}
-.rb-type-int {
-  color: blue !important;
-}
-.rb-type-float {
-  color: orange !important;
-}
-.rb-type-dict {
-  color: purple !important;
-}
-.rb-type-list {
-  color: green !important;
+/* Rainbows default color scheme */
+:root {
+  --bool-color: #CE63A1;
+  --string-color: red;
+  --int-color: blue;
+  --float-color: orange;
+  --dict-color: purple;
+  --list-color: green;
 }
 
+/* standard Rainbows types */
+.rb-type-bool {
+  color: var(--bool-color) !important;
+  text-decoration: bold;
+}
+.rb-type-string {
+  color: var(--string-color) !important;
+  text-decoration: bold;
+}
+.rb-type-int {
+  color: var(--int-color) !important;
+  text-decoration: bold;
+}
+.rb-type-float {
+  color: var(--float-color) !important;
+  text-decoration: bold;
+}
+.rb-type-dict {
+  color: var(--dict-color) !important;
+  text-decoration: bold;
+}
+.rb-type-list {
+  color: var(--list-color) !important;
+  text-decoration: bold;
+}
+
+/* For "underlining" arguments */
 .rb-arg-type-bool {
-  border-bottom: 0.2em solid #CE63A1 !important;
+  border-bottom: 0.2em solid var(--bool-color) !important;
 }
 .rb-arg-type-string {
-  border-bottom: 0.2em solid red !important;
+  border-bottom: 0.2em solid var(--string-color) !important;
 }
 .rb-arg-type-int {
-  border-bottom: 0.2em solid blue !important;
+  border-bottom: 0.2em solid var(--int-color) !important;
 }
 .rb-arg-type-float {
-  border-bottom: 0.2em solid orange !important;
+  border-bottom: 0.2em solid var(--float-color) !important;
 }
 .rb-arg-type-dict {
-  border-bottom: 0.2em solid purple !important;
+  border-bottom: 0.2em solid var(--dict-color) !important;
 }
 .rb-arg-type-list {
-  border-bottom: 0.2em solid green !important;
+  border-bottom: 0.2em solid var(--list-color) !important;
 }

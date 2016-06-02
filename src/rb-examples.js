@@ -14,6 +14,7 @@ function fib(n) {
 
 var output = fib(12);
 var msg = "hello world";
+output
 `,
 },
 {
@@ -27,14 +28,15 @@ var msg = "hello world";
   var ret = mylist.join();
   return ret;
 }
-print(repeatstring("foobar", 5));
-print(repeatstring(5, 'wrong place'));
+//repeatstring(5, 'wrong place');
+repeatstring("foobar", 5);
 `,
 },
 {
-  name: 'Arithmetic',
+  name: 'All Types',
   code:
-`var a = 3 + 4;
+`// Take a look at what types different operations evaluate to
+var a = 3 + 4;
 var b = 5.2 * 7.1;
 var c = 12.3 / 4;
 var d = "hello" + ' goodbye';
@@ -42,6 +44,7 @@ var e = 'string' + 5;
 var f = true;
 var g = []; // list
 var h = {}; // dict
+[a, b, c, d, e, f, g, h]
 `,
 },
 {
@@ -61,14 +64,17 @@ function getLength(str) {
   }
 }
 
-print(getLength("hello world"));
-print(getLength(['h', 'e', 'l', 'l', 'o']));
+//getLength(['h', 'e', 'l', 'l', 'o']);
+getLength("hello world");
 `,
 },
 {
-  name: 'integer addition',
+  name: 'int division',
   code:
-`1 + 3
+`// Try casting 'three' or 'four' to a float
+var three = 3;
+var four = 4;
+three / four
 `,
 },
 {

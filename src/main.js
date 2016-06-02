@@ -255,10 +255,10 @@ function domToText() {
 }
 
 var s;
-var grammars;
+var grammars = {};
 $(document).ready(function() {
-  grammars = ohm.grammarsFromScriptElements();
-  s = grammars.ES5.semantics();
+  grammars.Rainbows = ohm.grammarFromScriptElement();
+  s = grammars.Rainbows.semantics();
   s.addOperation(
       'ti()',
       typeInference);
@@ -268,7 +268,7 @@ $(document).ready(function() {
 });
 
 function interp(expr) {
-  var m = grammars.ES5.match(expr);
+  var m = grammars.Rainbows.match(expr);
   if (m.succeeded()) {
     return s(m).rb();
   } else {
@@ -276,10 +276,35 @@ function interp(expr) {
   }
 }
 
+// change `type` to now be colored as `newColor`, regardless of before
+function changeTypeColor(newColor) {
+  var type = window.changeType;
+  document.documentElement.style.setProperty(`--${type}-color`, '#' + newColor);
+}
+
+$(document).ready(function() {
+  var node = document.getElementById('typeList');
+  rbTypeList.forEach(function (type) {
+    if (type === 'default type')
+      return;
+    var d = document.createElement('div');
+    d.innerHTML = type;
+    d.setAttribute('onclick', "messUpButton('" + type + "')");
+    node.appendChild(d);
+  });
+});
+function messUpButton(type) {
+  $('#mytype').text(type);
+  window.changeType = type;
+  var styles = getComputedStyle(document.querySelector('.rb-type-' + type));
+  var col = String(styles.getPropertyValue('color')).trim();
+  document.getElementById('color-btn').jscolor.fromString(col);
+}
+
 // This accepts a javascript expression and returns a string denoting its type
 function getJsType(expr) {
   var widget;
-  var m = grammars.ES5.match(expr);
+  var m = grammars.Rainbows.match(expr);
   if (m.succeeded()) {
     tokenTypes.refresh();
     return s(m).ti();
@@ -328,14 +353,14 @@ $(document).ready(function() {
     });
   });
 });
+var rbTypeList = ['default type', 'string', 'int', 'float', 'bool', 'list', 'dict'];
 $(document).ready(function () {
-  var rbTypeList = ['default type', 'string', 'int', 'float', 'bool', 'list', 'dict'];
-  var matchingGrey = $('.cm-s-default').css('color');
-  var rbColorList = rbTypeList.map(x => $('.rb-type-' + x).css('color') || matchingGrey);
+  var matchingGrey = $('.cm-s-default');
+  var rbColorList = rbTypeList.map(x => x === 'default type' ? matchingGrey : $('.rb-type-' + x));
   var node = {}; // hack: use an object here, because of scoping issues
   updateSlider = function (event, ui) {
     var myType = rbTypeList[ui.value];
-    node.value.css('background', rbColorList[ui.value]);
+    node.value.css('background', rbColorList[ui.value].css('color'));
 
     // Remember the user's type selection
     if (myType === 'default type')
@@ -354,7 +379,7 @@ $(document).ready(function () {
     slide: updateSlider,
   });
   node.value = $('.ui-state-default');
-  node.value.css('background', matchingGrey);
+  node.value.css('background', matchingGrey.css('color'));
   $('.ui-widget-content').css('background', '#E0E9EC');
   $('#slider-1').slider('option', 'disabled', true);
 })
