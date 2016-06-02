@@ -56,18 +56,26 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     decimalLiteral_integerOnly: function (x, y) { return parseInt(this.interval.contents); },
     decimalLiteral_bothParts: function (x, y, z, w) { return parseFloat(this.interval.contents); },
     Block: function (a, b, c) { b.rb(); return null; },
-    FunctionDeclaration: function (a, id, c, d, e, f, body, h) {
-      if (!tokenTypes.internal[id.interval.contents]) {
-        tokenTypes.internal[id.interval.contents] = {
-          type: 'fun',
-          ret: 'unknown',
-          args: [], // TODO: fix this
-        };
-        body.rb();
-      }
+    FunctionDeclaration: function (a, id, c, params, e, f, myBody, h) {
+      var argList = params.interval.contents.split(/,\s*/);
+      var idName = id.interval.contents;
+      if (env[idName] !== undefined)
+        throw new Error(`redefining ${idName} is not allowed`);
+      env[idName] = {
+        args: argList,
+        body: myBody,
+      };
       return null;
     },
-    FunctionBody: function (a, b) { return b.rb(); },
+    FunctionBody: function (a, b) {
+      try {
+        b.rb();
+      } catch (e) {
+        if (!e.hasOwnProperty('val'))
+          throw e;
+        return e.val;
+      }
+    },
     IfStatement: function (a, b, cond, d, expr, f, elseCase) {
       if (truthy(cond.rb())) {
         expr.rb();
@@ -77,16 +85,14 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return null;
     },
     VariableStatement: function (x, y, z) {
-      console.log(typeof y.rb());
+      y.rb(); // this is an Array
       return null;
     },
     VariableDeclaration: function (x, y) {
       var val = y.rb();
-      console.log(val);
       val = val[val.length-1];
       env[x.interval.contents] = val; // override
-      return null;
-      return val;
+      return null; // doesn't matter
     },
     Initialiser: function (x, y) {
       var type = y.rb();
@@ -105,7 +111,9 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     stringLiteral: function (x, y, z) { return eval(this.interval.contents); },
     booleanLiteral: function (x) { return JSON.parse(this.interval.contents); },
-    ReturnStatement: (x, y, z, w) => null, // TODO: fix this
+    ReturnStatement: (x, y, z, w) => {
+      throw { val: z.rb()[0], };
+    },
     PostfixExpression_postIncrement: function(a, b, c) {
       return env[a.interval.contents]++;
     },
@@ -125,11 +133,11 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     identifier: function (x) {
       var ret = env[x.interval.contents];
+      if (ret === undefined)
+        throw new Error(`${x.interval.contents} is an undefined identifier`);
       var type = this.ti();
       if (type === 'string')
         return ret.toString();
-      else if (type === 'int')
-        return parseInt(ret);
       else if (type === 'int')
         return parseInt(ret);
       else if (type === 'float')
@@ -180,9 +188,23 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return null;
     },
     CallExpression_memberExpExp: function(x, y) {
-      // TODO(nate): fix
-      return 'fix me';
+      // TODO(nate): fix this line to use .rb()
+      var myFun = env[x.interval.contents];
+      var argList = y.rb();
+
+      var type = x.ti();
+      if (myFun.args.length !== argList.length)
+        throw new Error('Argument lists must be same length');
+      var oldEnv = env;
+      env = Object.create(oldEnv);
+      for (var k = 0; k < argList.length; k++) {
+        env[myFun.args[k]] = argList[k];
+      }
+      var ret = myFun.body.rb(); // execute it with the new environment
+      env = oldEnv;
+      return ret;
     },
+    Arguments: (a, b, c) => b.rb(),
     MemberExpression_propRefExp: (a, b, c) => a.rb()[c.interval.contents],
     MemberExpression_arrayRefExp: (a, b, c, d) => a.rb()[c.rb()],
     PrimaryExpression_parenExpr: (x, y, z) => y.rb(),

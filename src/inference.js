@@ -145,35 +145,35 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       if (x.interval.contents.match(idRegex)) {
         tokenTypes.setVal(x.interval.contents, type);
       }
-      return type
+      return type;
     },
     identifier: function (x) {
-      return tokenTypes.getVal(x.interval.contents)
+      return tokenTypes.getVal(x.interval.contents);
     },
     IterationStatement: (a) => a.ti(),
     IterationStatement_doWhile: function(a, b, c, d, e, f, g) {
       b.ti();
       e.ti();
-      return 'void'
+      return 'void';
     },
     IterationStatement_whileDo: function(a, b, c, d, e) {
       c.ti();
       e.ti();
-      return 'void'
+      return 'void';
     },
     IterationStatement_for3: function(a, b, c, d, e, f, g, h, i) {
       c.ti();
       e.ti();
       g.ti();
       i.ti();
-      return 'void'
+      return 'void';
     },
     IterationStatement_for3var: function(a, b, _var, c, d, e, f, g, h, i) {
       c.ti();
       e.ti();
       g.ti();
       i.ti();
-      return 'void'
+      return 'void';
     },
     IterationStatement_forIn: function(a, b, lhs, c, expr, d, stmt) {
       lhs.ti();
@@ -181,7 +181,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       // TODO(nate): actually infer the type, don't just do a lame guess
       tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
       stmt.ti();
-      return 'void'
+      return 'void';
     },
     IterationStatement_forInVar: function(a, b, _var, lhs, c, expr, d, stmt) {
       lhs.ti();
@@ -193,8 +193,10 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     CallExpression_memberExpExp: function(x, y) {
       // console.log(tokenTypes.getVal(x.interval.contents.replace(/\./, '#')));
-      return tokenTypes.getVal(x.interval.contents.replace(/\./, '#'));
+      y.ti(); // check the arguments
+      return tokenTypes.getVal(x.interval.contents);
     },
+    Arguments: (a, b, c) => b.ti(),
     PrimaryExpression_parenExpr: (x, y, z) => y.ti(),
     ObjectLiteral_noTrailingComma: function (a, b, c) {
       var oldNameSpace = nameSpace;

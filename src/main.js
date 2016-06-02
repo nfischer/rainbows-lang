@@ -114,7 +114,8 @@ $(document).ready(function() {
 });
 function main() {
   // TODO: clear out `env` for any token that isn't currently present
-  getJsType(editor.getValue());
+  jscode.setValue('...');
+  var passedTypeInference = getJsType(editor.getValue());
 
   // literals
   appendTypeClass('.cm-number');
@@ -132,15 +133,19 @@ function main() {
   // figure out more stuff
 
   // now interpret it
-  setTimeout(function() {
-    var val = interp(editor.getValue());
-    var result;
-    if (val === null || val === undefined)
-      result = '[no expression value]';
-    else
-      result = JSON.stringify(val);
-    jscode.setValue(result);
-  }, 10);
+  if (passedTypeInference) {
+    setTimeout(function() {
+      var val = interp(editor.getValue());
+      var result;
+      if (val === null || val === undefined)
+        result = '[no expression value]';
+      else
+        result = JSON.stringify(val);
+      jscode.setValue(result);
+    }, 10);
+  } else {
+    jscode.setValue('Please fix your type errors');
+  }
 }
 
 $(document).ready(function() {
@@ -301,13 +306,37 @@ function messUpButton(type) {
   document.getElementById('color-btn').jscolor.fromString(col);
 }
 
+var bottomError = (function() {
+  var lineNum = 14;
+  var d = document.createElement('div');
+  var node = $(d).css('color', '#D60000').css('font-style', 'italic').css('text-decoration', 'underline');
+  var widget;
+  return {
+    show: (msg) => {
+      node.text(msg);
+      widget = editor.addLineWidget(editor.lineCount()-1, d);
+    },
+    hide: () => {
+      node.text('');
+      widget.clear();
+    }
+  };
+})();
+
 // This accepts a javascript expression and returns a string denoting its type
 function getJsType(expr) {
   var widget;
   var m = grammars.Rainbows.match(expr);
   if (m.succeeded()) {
-    tokenTypes.refresh();
-    return s(m).ti();
+    try {
+      tokenTypes.refresh();
+      s(m).ti();
+      bottomError.hide();
+      return true;
+    } catch (e) {
+      bottomError.show(e);
+      return false;
+    }
   }
   //} else {
   //  var timeout;
@@ -355,6 +384,7 @@ $(document).ready(function() {
 });
 var rbTypeList = ['default type', 'string', 'int', 'float', 'bool', 'list', 'dict'];
 $(document).ready(function () {
+  $('#foo').text('int');
   var matchingGrey = $('.cm-s-default');
   var rbColorList = rbTypeList.map(x => x === 'default type' ? matchingGrey : $('.rb-type-' + x));
   var node = {}; // hack: use an object here, because of scoping issues
@@ -370,7 +400,8 @@ $(document).ready(function () {
 
     addType(node.value, myType); // show the link hint for the slider UI
     addType($('#cur-token'), myType); // show the link hint for the slider UI
-    main(); // infer types, but now we'll remember the user's manual change
+    // infer types, but now we'll remember the user's manual changes
+    setTimeout(main, 1);
   }
   $('#slider-1').slider({
     min: 0,
