@@ -46,14 +46,12 @@
 </td>
 <td>
 <div class="color-changer">
-<!-- <p> Color: <input class="jscolor" onchange="console.log('#' + this.jscolor)" value="ab2567"></p> -->
-<!-- <p> Redefining color for : <button class="jscolor {onFineChange:'changeTypeColor(this)',value='ab2567'}" value="ab2567">int</button></p> -->
 <p id="msg"></p>
 <div id="slider-1" myval="40"=></div>
-<input type="button" value="Reset" onclick="var s = $('#slider-1'); s.slider('value', 0); updateSlider(null, {value: 0}); main()" id="button1">
+<button onclick="var s = $('#slider-1'); s.slider('value', 0); updateSlider(null, {value: 0}); main()" id="button1">Reset</button>
 <br>
 <div class="dropdown">
-  <button id="color-btn" class="dropbtn jscolor {valueElement:null,onFineChange:'changeTypeColor(this)'}">Click to change the color of <span id="mytype"></span></button>
+  <button id="color-btn" class="dropbtn jscolor {valueElement:null,onFineChange:'changeTypeColor(this)'}">Click to change the color of <span id="mytype">int</span></button>
   <div id="typeList" class="dropdown-content">
   </div>
 </div>
@@ -63,7 +61,7 @@
 <tr>
 <td>
 <div class="code-box">
-<h2>Ignore this box for now &#9786;</h2>
+<h2>Interpreted result</h2>
 <textarea id="jscode" class="codemirror-textarea">
 </textarea>
 <div class="container">

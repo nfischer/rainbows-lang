@@ -192,7 +192,6 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       var myFun = env[x.interval.contents];
       var argList = y.rb();
 
-      var type = x.ti();
       if (myFun.args.length !== argList.length)
         throw new Error('Argument lists must be same length');
       var oldEnv = env;
@@ -202,7 +201,16 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       }
       var ret = myFun.body.rb(); // execute it with the new environment
       env = oldEnv;
-      return ret;
+
+      var type = x.ti();
+      if (type === 'string')
+        return ret.toString();
+      else if (type === 'int')
+        return parseInt(ret);
+      else if (type === 'float')
+        return parseFloat(ret);
+      else
+        return ret;
     },
     Arguments: (a, b, c) => b.rb(),
     MemberExpression_propRefExp: (a, b, c) => a.rb()[c.interval.contents],

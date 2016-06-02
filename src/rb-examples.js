@@ -12,7 +12,7 @@ function fib(n) {
   }
 }
 
-var output = fib(12);
+var output = fib(6);
 var msg = "hello world";
 output
 `,
