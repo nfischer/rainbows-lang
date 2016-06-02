@@ -112,10 +112,16 @@ function appendTypeClass(originalClassName) {
 $(document).ready(function() {
   tokenTypes.refresh(true);
 });
+
+function showOutput(outputStr, type) {
+  jscode.setValue(outputStr);
+  $('#rainbows-output .CodeMirror-line > span').addClass('rb-type-' + type);
+}
+
 function main() {
   // TODO: clear out `env` for any token that isn't currently present
-  jscode.setValue('...');
-  var passedTypeInference = getJsType(editor.getValue());
+  showOutput('...');
+  var resultType = getJsType(editor.getValue());
 
   // literals
   appendTypeClass('.cm-number');
@@ -133,7 +139,7 @@ function main() {
   // figure out more stuff
 
   // now interpret it
-  if (passedTypeInference) {
+  if (resultType) { // this is null if type inference fails
     setTimeout(function() {
       var val = interp(editor.getValue());
       var result;
@@ -141,10 +147,10 @@ function main() {
         result = '[no expression value]';
       else
         result = JSON.stringify(val);
-      jscode.setValue(result);
+      showOutput(result, resultType);
     }, 10);
   } else {
-    jscode.setValue('Please fix your type errors');
+    showOutput('Please fix your type errors');
   }
 }
 
@@ -221,6 +227,7 @@ $(document).ready(function() {
   });
 
   $('#rainbows-text').next().attr('id', 'rainbows-editor');
+  $('#jscode').next().attr('id', 'rainbows-output');
 
   // Run the psuedo type-inference
   setTimeout(main, 5);
@@ -330,12 +337,12 @@ function getJsType(expr) {
   if (m.succeeded()) {
     try {
       tokenTypes.refresh();
-      s(m).ti();
+      var ret = s(m).ti();
       bottomError.hide();
-      return true;
+      return ret;
     } catch (e) {
       bottomError.show(e);
-      return false;
+      return null;
     }
   }
   //} else {
