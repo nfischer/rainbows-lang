@@ -9,6 +9,23 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   var functionName = '';
   var nameSpace = '';
   var idRegex = /[a-zA-Z_][a-zA-Z0-9_]*/;
+  function areCompatibleTypes(lhsType, rhsType) {
+    if (lhsType === 'unknown')
+      return true;
+    var ret;
+    ['dict', 'list', 'bool'].forEach(function (x) {
+      if (typeof ret === 'boolean') return;
+      if ((lhsType === x) && lhsType === rhsType)
+        ret = true;
+      else if (lhsType === x || rhsType === x)
+        ret = false;
+    });
+    if (typeof ret === 'boolean')
+      return ret;
+    if ((lhsType === 'int' || lhsType === 'float') && (rhsType === 'string'))
+      return false;
+    return true;
+  }
   function arithHelper(x, op, y) {
     var a = x.ti();
     var b = y.ti();
@@ -103,11 +120,15 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return x.ti();
     },
     VariableDeclaration: function (x, y) {
-      var type = y.ti(); // this is a list
-      type = type[type.length-1];
-      if (x.interval.contents.match(idRegex))
-        tokenTypes.setVal(x.interval.contents, type);
-      return type
+      var rhsType = y.ti()[0];
+      var id = x.interval.contents;
+      if (id.match(idRegex)) {
+        var lhsType = tokenTypes.getVal(id);
+        if (!areCompatibleTypes(lhsType, rhsType))
+          throw Error(`cannot assign ${rhsType} to ${lhsType} (${this.interval.contents})`);
+        tokenTypes.setVal(x.interval.contents, rhsType);
+      }
+      return rhsType;
     },
     Initialiser: (x, y) => y.ti(),
     EmptyListOf: () => 'void',
@@ -141,11 +162,15 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
         tokenTypes.setVal(a.interval.contents, 'int');
     },
     AssignmentExpression_assignment: (x, y, z) => {
-      var type = z.ti();
-      if (x.interval.contents.match(idRegex)) {
-        tokenTypes.setVal(x.interval.contents, type);
+      var rhsType = z.ti();
+      var id = x.interval.contents;
+      if (id.match(idRegex)) {
+        var lhsType = tokenTypes.getVal(id);
+        if (!areCompatibleTypes(lhsType, rhsType))
+          throw Error(`cannot assign ${rhsType} (${z.interval.contents}) to ${lhsType} (${id})`);
+        tokenTypes.setVal(x.interval.contents, rhsType);
       }
-      return type;
+      return rhsType;
     },
     identifier: function (x) {
       return tokenTypes.getVal(x.interval.contents);

@@ -10,13 +10,14 @@ function addType(node, type, opts) {
   } else if (type.type) {
     type = type.type;
   }
-  // add type info & remove old type info
-  var regex = RegExp('^(.*\\S*)\\s+rb-' +
-              (opts.underline ? 'arg-' : '') +
-              'type-\\S+(.*)$');
+  var regex = RegExp(
+                '^(.*)rb-' +
+                (opts.underline ? 'arg-' : '') +
+                'type-\\S+(.*)$'
+              );
   var m = node.attr('class')
   m = m && m.match(regex);
-  if (m) node.attr('class', m[1] + m[2]);
+  if (m) node.attr('class', m[1] + ' ' + m[2]);
   node.addClass('rb-' + (opts.underline ? 'arg-' : '') + 'type-' + type);
 
   if (!opts.underline) {
@@ -371,7 +372,6 @@ function getJsType(expr) {
   //  }, 30);
 }
 
-var updateSlider;
 $(document).ready(function() {
   editor.setValue(rbExamples[0].code);
   // Add buttons for the other examples
@@ -390,11 +390,13 @@ $(document).ready(function() {
   });
 });
 var rbTypeList = ['default type', 'string', 'int', 'float', 'bool', 'list', 'dict'];
+var updateSlider;
 $(document).ready(function () {
   $('#foo').text('int');
   var matchingGrey = $('.cm-s-default');
   var rbColorList = rbTypeList.map(x => x === 'default type' ? matchingGrey : $('.rb-type-' + x));
   var node = {}; // hack: use an object here, because of scoping issues
+  /* function updateSlider */
   updateSlider = function (event, ui) {
     var myType = rbTypeList[ui.value];
     node.value.css('background', rbColorList[ui.value].css('color'));
@@ -406,7 +408,8 @@ $(document).ready(function () {
       tokenTypes.setVal(window.currentToken, myType, {manual: true});
 
     addType(node.value, myType); // show the link hint for the slider UI
-    addType($('#cur-token'), myType); // show the link hint for the slider UI
+    addType($('#cur-token'), myType); // color the token
+
     // infer types, but now we'll remember the user's manual changes
     setTimeout(main, 1);
   }
