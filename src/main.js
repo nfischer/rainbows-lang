@@ -112,10 +112,6 @@ function appendTypeClass(originalClassName) {
   });
 }
 
-$(document).ready(function() {
-  tokenTypes.refresh(true);
-});
-
 function showOutput(outputStr, type) {
   jscode.setValue(outputStr);
   $('#rainbows-output .CodeMirror-line > span').addClass('rb-type-' + type);
@@ -227,9 +223,6 @@ $(document).ready(function() {
 
   $('#rainbows-text').next().attr('id', 'rainbows-editor');
   $('#jscode').next().attr('id', 'rainbows-output');
-
-  // Run the psuedo type-inference
-  setTimeout(main, 5);
 });
 
 var s;
@@ -246,11 +239,21 @@ $(document).ready(function() {
 });
 
 function interp(expr) {
-  var m = grammars.Rainbows.match(expr);
+  // var m = grammars.Rainbows.match(expr);
+  // if (m.succeeded()) {
+  //   return s(m).rb();
+  // } else {
+  //   throw "Error";
+  // }
   if (m.succeeded()) {
-    return s(m).rb();
-  } else {
-    throw "Error";
+    try {
+      var ret = s(m).rb();
+      outputError.hide();
+      return ret;
+    } catch (e) {
+      outputError.show(e);
+      return null;
+    }
   }
 }
 
@@ -280,35 +283,54 @@ function messUpButton(type) {
   document.getElementById('color-btn').jscolor.fromString(col);
 }
 
-var bottomError = (function() {
-  var lineNum = 14;
+var editorError = (function() {
   var d = document.createElement('div');
-  var node = $(d).css('color', '#D60000').css('font-style', 'italic').css('text-decoration', 'underline');
+  var node = $(d).addClass('playground-error-msg');
   var widget;
   return {
     show: (msg) => {
       node.text(msg);
       widget = editor.addLineWidget(editor.lineCount()-1, d);
+      console.error(msg);
     },
     hide: () => {
       node.text('');
-      widget.clear();
+      if (widget) widget.clear();
+    }
+  };
+})();
+
+// TODO(nate): get this div to display
+var outputError = (function() {
+  var d = document.createElement('div');
+  var node = $(d).addClass('playground-error-msg');
+  var widget;
+  return {
+    show: (msg) => {
+      node.text(msg);
+      console.warn(msg);
+      widget = jscode.addLineWidget(1, d);
+    },
+    hide: () => {
+      node.text('');
+      if (widget) widget.clear();
     }
   };
 })();
 
 // This accepts a javascript expression and returns a string denoting its type
+var m;
 function getJsType(expr) {
   var widget;
-  var m = grammars.Rainbows.match(expr);
+  m = grammars.Rainbows.match(expr);
   if (m.succeeded()) {
     try {
       tokenTypes.refresh();
       var ret = s(m).ti();
-      bottomError.hide();
+      editorError.hide();
       return ret;
     } catch (e) {
-      bottomError.show(e);
+      editorError.show(e);
       return null;
     }
   }
@@ -339,6 +361,7 @@ function getJsType(expr) {
 }
 
 $(document).ready(function() {
+  tokenTypes.refresh(true);
   editor.setValue(rbExamples[0].code);
   // Add buttons for the other examples
   var table = document.getElementById('main-table');
@@ -350,7 +373,6 @@ $(document).ready(function() {
     button.appendChild(document.createTextNode(ex.name));
     mydiv.appendChild(button);
     $(button).click(function() {
-      tokenTypes.refresh(true);
       editor.setValue(ex.code);
     });
   });
@@ -358,7 +380,6 @@ $(document).ready(function() {
 var rbTypeList = ['default type', 'string', 'int', 'float', 'bool', 'list', 'dict'];
 var updateSlider;
 $(document).ready(function () {
-  $('#foo').text('int');
   var matchingGrey = $('.cm-s-default');
   var rbColorList = rbTypeList.map(x => x === 'default type' ? matchingGrey : $('.rb-type-' + x));
   var node = {}; // hack: use an object here, because of scoping issues

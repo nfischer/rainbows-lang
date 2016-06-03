@@ -14,6 +14,14 @@ button {
   font-size: 24px;
   text-align: left;
 }
+.playground-error-msg {
+  background-color: yellow;
+  color: #D60000;
+  font-style: italic;
+  text-decoration: underline;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
 #cur-token {
   text-decoration: underline;
 }

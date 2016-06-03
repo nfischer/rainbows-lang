@@ -9,6 +9,14 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   var functionName = '';
   var nameSpace = '';
   var idRegex = /[a-zA-Z_][a-zA-Z0-9_]*/;
+  function InferenceError(message) {
+    this.name = 'InferenceError';
+    this.message = message || '';
+    this.stack = (new Error()).stack;
+  }
+  InferenceError.prototype = Object.create(Error.prototype);
+  InferenceError.prototype.constructor = InferenceError;
+
   function areCompatibleTypes(lhsType, rhsType) {
     if (lhsType === 'unknown')
       return true;
@@ -52,7 +60,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     errorObj['list'] = opPairs;
     errorObj['bool'] = opPairs;
     if (errorObj[ret] && errorObj[ret][opStr])
-      throw new Error(`cannot ${errorObj[ret][opStr]} ${ret} values`);
+      throw new InferenceError(`cannot ${errorObj[ret][opStr]} ${ret} values`);
     return ret || 'unknown';
   }
 
@@ -90,13 +98,14 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return 'unknown'
     },
     Block: function (a, b, c) { b.ti(); return 'void' },
-    FunctionDeclaration: function (a, id, c, d, e, f, body, h) {
+    FunctionDeclaration: function (a, id, c, params, e, f, body, h) {
       functionName = id.interval.contents;
+      // params.ti();
       if (!tokenTypes.inferred[functionName]) {
         tokenTypes.inferred[functionName] = {
           type: 'fun',
-          ret: tokenTypes.getVal(functionName),
-          args: [], // TODO: fix this
+          ret: 'unknown',
+          args: params.ti(),
         };
         body.ti();
       }
@@ -125,7 +134,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       if (id.match(idRegex)) {
         var lhsType = tokenTypes.getVal(id);
         if (!areCompatibleTypes(lhsType, rhsType))
-          throw Error(`cannot assign ${rhsType} to ${lhsType} (${this.interval.contents})`);
+          throw new InferenceError(`cannot assign ${rhsType} to ${lhsType} (${this.interval.contents})`);
         tokenTypes.setVal(x.interval.contents, rhsType);
       }
       return tokenTypes.getVal(id);
@@ -167,7 +176,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       if (id.match(idRegex)) {
         var lhsType = tokenTypes.getVal(id);
         if (!areCompatibleTypes(lhsType, rhsType))
-          throw Error(`cannot assign ${rhsType} (${z.interval.contents}) to ${lhsType} (${id})`);
+          throw new InferenceError(`cannot assign ${rhsType} (${z.interval.contents}) to ${lhsType} (${id})`);
         tokenTypes.setVal(x.interval.contents, rhsType);
       }
       return tokenTypes.getVal(id);

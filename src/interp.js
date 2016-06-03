@@ -5,6 +5,14 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 }
 
 (function () {
+  function RuntimeError(message) {
+    this.name = 'RuntimeError';
+    this.message = message || '';
+    this.stack = (new Error()).stack;
+  }
+  RuntimeError.prototype = Object.create(Error.prototype);
+  RuntimeError.prototype.constructor = RuntimeError;
+
   var env;
   function cast(type, value) {
     if (type === 'string')
@@ -18,14 +26,14 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   }
   function truthy(cond) {
     if (typeof cond !== 'boolean')
-      throw new Error('Condition must be of type `bool`');
+      throw new RuntimeError('Condition must be of type `bool`');
     return cond;
   }
   function arithHelper(x, y) {
     var a = x.ti();
     var b = y.ti();
-    if (a === 'dict' || b === 'dict') throw new Error('cannot add dicts');
-    if (a === 'list' || b === 'list') throw new Error('cannot add lists');
+    if (a === 'dict' || b === 'dict') throw new RuntimeError('cannot add dicts');
+    if (a === 'list' || b === 'list') throw new RuntimeError('cannot add lists');
     var ret;
     ['string', 'float', 'int'].forEach(x => {
       if (ret) return;
@@ -72,7 +80,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       var argList = params.interval.contents.split(/,\s*/);
       var idName = id.interval.contents;
       if (env[idName] !== undefined)
-        throw new Error(`redefining ${idName} is not allowed`);
+        throw new RuntimeError(`redefining ${idName} is not allowed`);
       env[idName] = {
         args: argList,
         body: myBody,
@@ -146,7 +154,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     identifier: function (x) {
       var ret = env[x.interval.contents];
       if (ret === undefined)
-        throw new Error(`${x.interval.contents} is an undefined identifier`);
+        throw new RuntimeError(`${x.interval.contents} is an undefined identifier`);
       var type = this.ti();
       return cast(type, ret);
     },
@@ -195,10 +203,11 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     CallExpression_memberExpExp: function(x, y) {
       // TODO(nate): fix this line to use .rb()
       var funDecl = env[x.interval.contents];
+      if (x.interval.contents === 'range') return [1, 2, 3, 4]; // TODO: change this
       var funInv  = { args: y.rb() };
 
       if (funDecl.args.length !== funInv.args.length)
-        throw new Error('Argument lists must be same length');
+        throw new RuntimeError('Argument lists must be same length');
       var oldEnv = env;
       env = Object.create(oldEnv);
       for (var k = 0; k < funInv.args.length; k++) {
