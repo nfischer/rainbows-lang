@@ -8,38 +8,38 @@
 
 /* Rainbows default color scheme */
 :root {
-  --bool-color: #CE63A1;
-  --string-color: red;
-  --int-color: blue;
+  --bool-color: #D39BBA;
+  --string-color: #FF4F4F;
+  --int-color: #0084FF;
   --float-color: orange;
-  --dict-color: purple;
-  --list-color: green;
+  --dict-color: #CE00CE;
+  --list-color: #00BA00;
 }
 
 /* standard Rainbows types */
 .rb-type-bool {
   color: var(--bool-color) !important;
-  text-decoration: bold;
+  font-weight: bold;
 }
 .rb-type-string {
   color: var(--string-color) !important;
-  text-decoration: bold;
+  font-weight: bold;
 }
 .rb-type-int {
   color: var(--int-color) !important;
-  text-decoration: bold;
+  font-weight: bold;
 }
 .rb-type-float {
   color: var(--float-color) !important;
-  text-decoration: bold;
+  font-weight: bold;
 }
 .rb-type-dict {
   color: var(--dict-color) !important;
-  text-decoration: bold;
+  font-weight: bold;
 }
 .rb-type-list {
   color: var(--list-color) !important;
-  text-decoration: bold;
+  font-weight: bold;
 }
 
 /* For "underlining" arguments */
