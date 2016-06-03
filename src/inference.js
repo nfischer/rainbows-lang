@@ -128,7 +128,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
           throw Error(`cannot assign ${rhsType} to ${lhsType} (${this.interval.contents})`);
         tokenTypes.setVal(x.interval.contents, rhsType);
       }
-      return rhsType;
+      return tokenTypes.getVal(id);
     },
     Initialiser: (x, y) => y.ti(),
     EmptyListOf: () => 'void',
@@ -170,7 +170,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
           throw Error(`cannot assign ${rhsType} (${z.interval.contents}) to ${lhsType} (${id})`);
         tokenTypes.setVal(x.interval.contents, rhsType);
       }
-      return rhsType;
+      return tokenTypes.getVal(id);
     },
     identifier: function (x) {
       return tokenTypes.getVal(x.interval.contents);

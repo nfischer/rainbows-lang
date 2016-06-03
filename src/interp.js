@@ -5,10 +5,22 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 }
 
 (function () {
-  function truthy(cond) {
-    return cond !== false;
-  }
   var env;
+  function cast(type, value) {
+    if (type === 'string')
+      return value.toString();
+    else if (type === 'int')
+      return parseInt(value);
+    else if (type === 'float')
+      return parseFloat(value);
+    else
+      return value;
+  }
+  function truthy(cond) {
+    if (typeof cond !== 'boolean')
+      throw new Error('Condition must be of type `bool`');
+    return cond;
+  }
   function arithHelper(x, y) {
     var a = x.ti();
     var b = y.ti();
@@ -129,21 +141,14 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     AssignmentExpression_assignment: (x, y, z) => {
       var val = z.rb();
       env[x.interval.contents] = val; // override
-      return val;
+      return cast(x.ti(), val);
     },
     identifier: function (x) {
       var ret = env[x.interval.contents];
       if (ret === undefined)
         throw new Error(`${x.interval.contents} is an undefined identifier`);
       var type = this.ti();
-      if (type === 'string')
-        return ret.toString();
-      else if (type === 'int')
-        return parseInt(ret);
-      else if (type === 'float')
-        return parseFloat(ret);
-      else
-        return ret;
+      return cast(type, ret);
     },
     IterationStatement: (a) => a.rb(),
     IterationStatement_doWhile: function(a, b, c, d, e, f, g) {
@@ -189,17 +194,17 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     CallExpression_memberExpExp: function(x, y) {
       // TODO(nate): fix this line to use .rb()
-      var myFun = env[x.interval.contents];
-      var argList = y.rb();
+      var funDecl = env[x.interval.contents];
+      var funInv  = { args: y.rb() };
 
-      if (myFun.args.length !== argList.length)
+      if (funDecl.args.length !== funInv.args.length)
         throw new Error('Argument lists must be same length');
       var oldEnv = env;
       env = Object.create(oldEnv);
-      for (var k = 0; k < argList.length; k++) {
-        env[myFun.args[k]] = argList[k];
+      for (var k = 0; k < funInv.args.length; k++) {
+        env[funDecl.args[k]] = funInv.args[k];
       }
-      var ret = myFun.body.rb(); // execute it with the new environment
+      var ret = funDecl.body.rb(); // execute it with the new environment
       env = oldEnv;
 
       var type = x.ti();

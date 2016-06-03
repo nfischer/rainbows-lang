@@ -12,9 +12,8 @@ function fib(n) {
   }
 }
 
-var output = fib(6);
-var msg = "hello world";
-output
+var output;
+output = fib(7);
 `,
 },
 {

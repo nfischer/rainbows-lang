@@ -20,10 +20,11 @@ function addType(node, type, opts) {
   if (m) node.attr('class', m[1] + ' ' + m[2]);
   node.addClass('rb-' + (opts.underline ? 'arg-' : '') + 'type-' + type);
 
+  // Add hint info
   if (!opts.underline) {
     // because we can't see things above the screen
-    var lineNum = domNodeToLineNumber(node);
-    node.addClass('hint--' + (lineNum > 2 ? 'top' : 'bottom'));
+    node.addClass('hint--' + (domNodeToLineNumber(node) > 2 ? 'top' : 'bottom'));
+
     node.addClass('hint--rounded');
     node.addClass('hint--bounce');
     node.attr('aria-label', type);
@@ -55,6 +56,7 @@ function getWordUnderCursor() {
   return editor.getRange(word.anchor, word.head);
 }
 
+// TODO(nate): make this actually work correctly
 function underlineArguments(funName, line, argTypes) {
   var k = -1;
   if (!argTypes) return;
@@ -90,15 +92,14 @@ function appendTypeClass(originalClassName) {
   $('#rainbows-editor ' + originalClassName).each(function() {
     var output = $(this).text();
     var literalsMap = {
-      '.cm-atom'  : 'bool',
-      '.cm-string': 'string',
+      '.cm-atom'  : () => 'bool',
+      '.cm-string': () => 'string',
+      '.cm-number': (x) => x.match(/\./) ? 'float' : 'int',
     };
-    if (literalsMap[originalClassName])
-      addType($(this), literalsMap[originalClassName]);
-    else if (originalClassName === '.cm-number') {
-      addType($(this), output.match(/\./) ? 'float' : 'int');
+    if (literalsMap[originalClassName]) {
+      addType($(this), literalsMap[originalClassName](output));
     } else if (originalClassName === '.cm-def') {
-      if ($(this).parent().text().match(output + ' *\\(')) {
+      if ($(this).parent().text().match(output + '\\s*\\(')) {
         makeTypedFun(output, $(this).parent());
       }
       addType($(this), tokenTypes.getVal(output));
@@ -110,6 +111,7 @@ function appendTypeClass(originalClassName) {
     }
   });
 }
+
 $(document).ready(function() {
   tokenTypes.refresh(true);
 });
@@ -172,7 +174,7 @@ $(document).ready(function() {
     setTimeout(main, 1);
   });
 
-  var sliderMsg = '<p id="msg">Click on a grey variable to assign its type</p>';
+  var sliderMsg = 'Click on a grey variable to assign its type';
   $(document).ready(function () {
     $('.color-changer > #msg').html(sliderMsg);
   });
@@ -203,7 +205,7 @@ $(document).ready(function() {
     if (!oldToken && newToken) {
       // Update to show the token
       $('.color-changer > #msg')
-          .html('<p id="msg">Drag the slider to color in "<span id="cur-token"></span>"</p>');
+          .html('Drag the slider to color in "<span id="cur-token"></span>"');
       $('#slider-1').slider('option', 'disabled', false);
       $('#cur-token').text(newToken);
       window.currentToken = newToken;
@@ -220,12 +222,8 @@ $(document).ready(function() {
     }
   }
 
-  editor.on('focus', function() {
-    colorWord();
-  });
-  editor.on('mousedown', function() {
-    colorWord();
-  });
+  editor.on('focus', colorWord);
+  editor.on('mousedown', colorWord);
 
   $('#rainbows-text').next().attr('id', 'rainbows-editor');
   $('#jscode').next().attr('id', 'rainbows-output');
@@ -233,39 +231,6 @@ $(document).ready(function() {
   // Run the psuedo type-inference
   setTimeout(main, 5);
 });
-
-function selectAll(id) {
-  document.getElementById(id).select();
-}
-
-// Find the DOM structure of the rainbows code and serialize this into a sort of
-// plain text
-function convertNode(node) {
-  var myclass = node.attr('class');
-  myclass = myclass && myclass.match(/rb-type-(\S+)/);
-  var ret = node.text();
-  if (myclass) {
-    var wrapper = '~' + myclass[1] + '~';
-    return wrapper + ret + wrapper;
-  } else {
-    return ret === '\u200b' ? '' : ret;
-  }
-}
-
-function domToText() {
-  // TODO(nate): refactor this into a functional style
-  var serializedLines = [];
-  $('#rainbows-editor .CodeMirror-line > span').each(function (num, line) {
-    var strVal = [];
-    $(line).contents().each(function (x, y) {
-      strVal.push(convertNode($(y)));
-    });
-    serializedLines.push(strVal.join(''));
-  });
-
-  var serializedText = serializedLines.join('\n');
-  return serializedText;
-}
 
 var s;
 var grammars = {};
@@ -306,6 +271,7 @@ $(document).ready(function() {
     node.appendChild(d);
   });
 });
+
 function messUpButton(type) {
   $('#mytype').text(type);
   window.changeType = type;
@@ -409,6 +375,7 @@ $(document).ready(function () {
 
     addType(node.value, myType); // show the link hint for the slider UI
     addType($('#cur-token'), myType); // color the token
+    if (myType !== 'default type') messUpButton(myType);
 
     // infer types, but now we'll remember the user's manual changes
     setTimeout(main, 1);

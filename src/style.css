@@ -9,6 +9,8 @@ button {
   padding: 5px;
 }
 #msg {
+  min-width: 330px;
+  text-align: center !important;
   font-size: 24px;
   text-align: left;
 }
