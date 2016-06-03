@@ -280,6 +280,7 @@ var editorError = (function() {
   return {
     show: (msg) => {
       node.text(msg);
+      if (widget) widget.clear();
       widget = editor.addLineWidget(editor.lineCount()-1, d);
       console.error(msg);
     },
@@ -299,6 +300,7 @@ var outputError = (function() {
     show: (msg) => {
       node.text(msg);
       console.warn(msg);
+      if (widget) widget.clear();
       widget = jscode.addLineWidget(1, d);
     },
     hide: () => {
@@ -320,7 +322,10 @@ function getJsType(expr) {
       editorError.hide();
       return ret;
     } catch (e) {
-      editorError.show(e);
+      if (e.constructor.name === 'InferenceError')
+        editorError.show(e);
+      else
+        throw e;
       return null;
     }
   }

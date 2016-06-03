@@ -23,7 +23,7 @@ var tokenTypes = {
   getObj: function(token) {
     // TODO(nate): fix this to use .internal
     if (this.selected.hasOwnProperty(token))
-      v = this.internal[token];
+      v = this.selected[token];
     else if (this.inferred.hasOwnProperty(token))
       v = this.inferred[token];
     else if (this.builtin.hasOwnProperty(token))
@@ -40,7 +40,17 @@ var tokenTypes = {
   setVal: function(token, value, opts) {
     opts = opts || {};
     var obj = (opts.manual ? this.selected : this.inferred);
-    if (obj[token] && obj[token].type === 'fun') {
+    if (this.inferred[token] && this.inferred[token].type === 'fun') {
+      if (opts.manual) {
+        var that = this;
+        this.selected[token] = this.selected[token] || {
+          name: token,
+          type: 'fun',
+          get args () {
+            return that.inferred[token].args;
+          },
+        };
+      }
       obj[token].ret = value;
     } else if (obj[token]) {
       obj[token].type = value;

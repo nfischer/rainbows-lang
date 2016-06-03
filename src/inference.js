@@ -108,15 +108,16 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     FunctionDeclaration: function (a, id, c, params, e, f, body, h) {
       functionName = id.interval.contents;
-      if (!tokenTypes.inferred[functionName]) {
-        tokenTypes.inferred[functionName] = {
-          type: 'fun',
-          name: functionName,
-          ret: 'unknown',
-          args: params.ti(),
-        };
-        body.ti();
+      if (tokenTypes.inferred[functionName]) {
+        throw new InferenceError('Cannot declare class twice');
       }
+      tokenTypes.inferred[functionName] = {
+        type: 'fun',
+        name: functionName,
+        ret: 'unknown',
+        args: params.ti(),
+      };
+      body.ti();
       return 'void';
     },
     FunctionBody: function (a, b) {
