@@ -59,32 +59,32 @@ function getWordUnderCursor() {
 // TODO(nate): make this actually work correctly
 function underlineArguments(funName, line, argTypes) {
   var k = -1;
+  var level = 0;
   if (!argTypes) return;
-  line.children().each(function(a, b) {
+  line.contents().each(function(a, b) {
     var node = $(b);
-    if (k < 0 && node.text() === funName) {
+    var name = node.text();
+    if (k < 0 && name === funName) {
       k++;
-      return;
-    }
-    if (k >= argTypes.length) return;
-    if (k >= 0 ) {
-      addType(node, { type: argTypes[k] } , { underline: true});
+    } else if (name === ')') {
+      k = -1;
+    } else if (level === 0 && name.match(/,\s*/)) {
       k++;
+    } else if (name.match(/[{([]\s*/)) {
+      level++;
+      addType(node, argTypes[k], { underline: true});
+    } else if (name.match(/[})\[]\s*/)) {
+      level--;
+      addType(node, argTypes[k], { underline: true});
+    } else if (k >= 0) {
+      addType(node, argTypes[k], { underline: true});
     }
   });
 }
 
 function makeTypedFun(token, lineNode) {
-  var oldType = tokenTypes.getVal(token);
-  var myArgs = lineNode.text().match(RegExp(token + '\\(([^)]*)\\)'))[1].split(/,\s*/);
-  var myArgTypes = myArgs.map(x => tokenTypes.getVal(x));
-  underlineArguments(token, lineNode, myArgTypes);
-
-  tokenTypes.internal[token] = {
-    type: 'fun',
-    ret: oldType,
-    args: myArgTypes,
-  };
+  var obj = tokenTypes.getObj(token);
+  underlineArguments(token, lineNode, obj.args);
 }
 
 
@@ -105,8 +105,8 @@ function appendTypeClass(originalClassName) {
       addType($(this), tokenTypes.getVal(output));
     } else {
       addType($(this), tokenTypes.getVal(output));
-      if (tokenTypes.internal[output] && tokenTypes.internal[output].type === 'fun') {
-        underlineArguments(output, $(this).parent(), tokenTypes.internal[output].args);
+      if (tokenTypes.getObj(output).type === 'fun') {
+        underlineArguments(output, $(this).parent(), tokenTypes.getObj(output).args);
       }
     }
   });
@@ -361,8 +361,10 @@ function getJsType(expr) {
 }
 
 $(document).ready(function() {
+  // Load the first example
   tokenTypes.refresh(true);
   editor.setValue(rbExamples[0].code);
+
   // Add buttons for the other examples
   var table = document.getElementById('main-table');
   var row = table.insertRow(1);
@@ -373,6 +375,7 @@ $(document).ready(function() {
     button.appendChild(document.createTextNode(ex.name));
     mydiv.appendChild(button);
     $(button).click(function() {
+      tokenTypes.refresh(true);
       editor.setValue(ex.code);
     });
   });

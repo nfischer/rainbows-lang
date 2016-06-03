@@ -72,40 +72,22 @@ doTest("x = {}", 'dict', null);
 
 doTest("({foo: true})", 'dict', null);
 
-m = es5.match("({foo: true, bar: 0})");
-assert.strictEqual(s(m).ti(), 'dict');
+doTest("({foo: true, bar: 0})", 'dict', null);
 
-m = es5.match("({foo: true, bar: 0,})");
-assert.strictEqual(s(m).ti(), 'dict');
-
-tokenTypes.setVal('foo', 'int');
 doTest("foo = 1", 'int', 1);
 doTest("foo = 1; foo = 2", 'int', 2);
-// tokenTypes.setVal('foo', 'int');
-// doTest("foo = 1; foo++", 'int', 1);
-// tokenTypes.setVal('foo', 'int');
-// doTest("foo = 1; foo--", 'int', 1);
-// tokenTypes.setVal('foo', 'int');
-// doTest("foo = 1; ++foo", 'int', 2);
-// tokenTypes.setVal('foo', 'int');
+doTest("var foo = 1; foo++;", 'int', 1);
+doTest("var foo = 1; foo--", 'int', 1);
+doTest("var foo = 1; ++foo", 'int', 2);
 
 doTest("foo + 7", 'int', null, () => {tokenTypes.setVal('foo', 'int'); });
 
-tokenTypes.setVal('foo', 'int');
-doTest("foo + 7.3", 'float', null);
+doTest("var foo = 7; 7.1 + foo", 'float', 14.1);
+doTest("var foo = 7; foo + 7.1", 'float', 14.1);
 
-tokenTypes.setVal('foo', 'int');
-doTest("7.1 + foo", 'float', null);
+doTest(`function foo() { return 1; }; foo()`, 'int', 1);
 
-tokenTypes.setVal('foo', 'fun');
-tokenTypes.setVal('foo', 'int');
-m = es5.match("foo()");
-assert.strictEqual(s(m).ti(), 'int');
-
-tokenTypes.setVal('foo', 'fun');
-tokenTypes.setVal('foo', 'int');
-m = es5.match("foo(12, 'hi')");
-assert.strictEqual(s(m).ti(), 'int');
+doTest(`function foo(a, b) { return 1; }; foo(1, 2)`, 'int', 1);
 
 doTest("x = []", 'list', null);
 doTest("[1, 2, 3]", 'list', null);
@@ -183,9 +165,9 @@ function fib(n) {
     return fib(n-1)+fib(n-2);
   }
 }
-var output = fib(12);
+var output = fib(5);
 var msg = "hello world";
-output`, 'int', null);
+output`, 'int', 5);
 
 doTest(
 `// Recursive fibonacci algorithm
@@ -198,9 +180,9 @@ function fib(n) {
     return fib(n-1)+fib(n-2);
   }
 }
-var output = fib(12);
+var output = fib(2);
 var msg = "hello world";
-msg`, 'string', null);
+msg`, 'string', 'hello world');
 
 doTest(
 `

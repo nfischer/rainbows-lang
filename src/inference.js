@@ -98,12 +98,20 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return 'unknown'
     },
     Block: function (a, b, c) { b.ti(); return 'void' },
+    FormalParameter: (a) => {
+      var ret = tokenTypes.getObj(a.interval.contents);
+      if (typeof ret === 'string') {
+        tokenTypes.setVal(a.interval.contents, ret);
+        ret = tokenTypes.getObj(a.interval.contents);
+      }
+      return ret;
+    },
     FunctionDeclaration: function (a, id, c, params, e, f, body, h) {
       functionName = id.interval.contents;
-      // params.ti();
       if (!tokenTypes.inferred[functionName]) {
         tokenTypes.inferred[functionName] = {
           type: 'fun',
+          name: functionName,
           ret: 'unknown',
           args: params.ti(),
         };
@@ -164,11 +172,13 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       a.ti();
       if (a.interval.contents.match(idRegex))
         tokenTypes.setVal(a.interval.contents, 'int');
+      return 'int';
     },
     PostfixExpression_postDecrement: function(a, b, c) {
       a.ti();
       if (a.interval.contents.match(idRegex))
         tokenTypes.setVal(a.interval.contents, 'int');
+      return 'int';
     },
     AssignmentExpression_assignment: (x, y, z) => {
       var rhsType = z.ti();
@@ -226,8 +236,16 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return 'void';
     },
     CallExpression_memberExpExp: function(x, y) {
-      // console.log(tokenTypes.getVal(x.interval.contents.replace(/\./, '#')));
-      y.ti(); // check the arguments
+      var funDec = tokenTypes.getObj(x.interval.contents);
+      var funInv = { args: y.ti() };
+      if (funDec.args.length !== funInv.args.length)
+        throw new InferenceError('Argument lists must be same length');
+      for (var k = 0; k < funDec.args.length; k++) {
+        var thisType = funDec.args[k].type;
+        if (thisType === 'unknown') {
+          tokenTypes.setVal(funDec.args[k].name, funInv.args[k]);
+        }
+      }
       return tokenTypes.getVal(x.interval.contents);
     },
     Arguments: (a, b, c) => b.ti(),

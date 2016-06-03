@@ -206,8 +206,6 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       if (x.interval.contents === 'range') return [1, 2, 3, 4]; // TODO: change this
       var funInv  = { args: y.rb() };
 
-      if (funDecl.args.length !== funInv.args.length)
-        throw new RuntimeError('Argument lists must be same length');
       var oldEnv = env;
       env = Object.create(oldEnv);
       for (var k = 0; k < funInv.args.length; k++) {

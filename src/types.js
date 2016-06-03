@@ -20,9 +20,9 @@ var tokenTypes = {
       this.internal = this.selected;
     }
   },
-  getVal: function(token) {
+  getObj: function(token) {
     // TODO(nate): fix this to use .internal
-    if (this.internal.hasOwnProperty(token))
+    if (this.selected.hasOwnProperty(token))
       v = this.internal[token];
     else if (this.inferred.hasOwnProperty(token))
       v = this.inferred[token];
@@ -31,6 +31,10 @@ var tokenTypes = {
     else
       v = 'unknown';
     // var v = this.internal[token] || 'unknown';
+    return v;
+  },
+  getVal: function(token) {
+    var v = this.getObj(token);
     return v.ret || v.type || v;
   },
   setVal: function(token, value, opts) {
@@ -38,8 +42,11 @@ var tokenTypes = {
     var obj = (opts.manual ? this.selected : this.inferred);
     if (obj[token] && obj[token].type === 'fun') {
       obj[token].ret = value;
+    } else if (obj[token]) {
+      obj[token].type = value;
     } else {
       obj[token] = {
+        name: token,
         type: value,
       };
     }
