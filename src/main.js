@@ -82,12 +82,6 @@ function underlineArguments(funName, line, argTypes) {
   });
 }
 
-function makeTypedFun(token, lineNode) {
-  var obj = tokenTypes.getObj(token);
-  underlineArguments(token, lineNode, obj.args);
-}
-
-
 function appendTypeClass(originalClassName) {
   $('#rainbows-editor ' + originalClassName).each(function() {
     var output = $(this).text();
@@ -96,16 +90,12 @@ function appendTypeClass(originalClassName) {
       '.cm-string': () => 'string',
       '.cm-number': (x) => x.match(/\./) ? 'float' : 'int',
     };
+    var obj = tokenTypes.getObj(output);
     if (literalsMap[originalClassName]) {
       addType($(this), literalsMap[originalClassName](output));
-    } else if (originalClassName === '.cm-def') {
-      if ($(this).parent().text().match(output + '\\s*\\(')) {
-        makeTypedFun(output, $(this).parent());
-      }
-      addType($(this), tokenTypes.getVal(output));
     } else {
       addType($(this), tokenTypes.getVal(output));
-      if (tokenTypes.getObj(output).type === 'fun') {
+      if (obj.type === 'fun') {
         underlineArguments(output, $(this).parent(), tokenTypes.getObj(output).args);
       }
     }
