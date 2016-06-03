@@ -3,6 +3,7 @@
   src: url("../fonts/GoodDog-regular/GoodDog.otf") format("opentype");
 }
 button {
+  background-color: #DAE5E8;
   border-radius: 5px;
   margin: 5px;
   padding: 5px;
@@ -111,9 +112,4 @@ p {
 /* Show the dropdown menu on hover */
 .dropdown:hover .dropdown-content {
   display: block;
-}
-
-/* Change the background color of the dropdown button when the dropdown content is shown */
-.dropdown:hover .dropbtn {
-  background-color: #3e8e41;
 }
