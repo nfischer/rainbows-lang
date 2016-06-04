@@ -411,3 +411,20 @@ $(document).ready(function () {
   $('.ui-widget-content').css('background', '#E0E9EC');
   $('#slider-1').slider('option', 'disabled', true);
 })
+
+function saveFile() {
+  var a = document.createElement('a');
+  var file;
+
+  // download the text
+  file = new Blob([editor.getValue()], {type: 'text'});
+  a.href = URL.createObjectURL(file);
+  a.download = 'sample.rain';
+  a.click();
+
+  // download the type info
+  file = new Blob([tokenTypes.serialize()], {type: 'text/json'});
+  a.href = URL.createObjectURL(file);
+  a.download = 'sample.raint';
+  a.click();
+}

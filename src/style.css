@@ -25,6 +25,9 @@ button {
 #cur-token {
   text-decoration: underline;
 }
+#save-file {
+  float: right;
+}
 .color-changer {
   margin-left: 10px;
   width: auto 200px;

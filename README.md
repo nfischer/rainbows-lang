@@ -26,7 +26,7 @@ know. If you want to run the dev unit tests, you'll need NodeJS v6+.
  - Type hints for function APIs (a colorful underline serves to remind what type
    the function will implicitly cast your values to)
 
-## [Code environment](https://nfischer.github.io/rainbows/)
+## [Live coding environment](https://nfischer.github.io/rainbows/)
 
  - Quickly cast things to a different type just by using the color slider
  - Customize the color scheme by picking new colors for each type
@@ -35,6 +35,8 @@ know. If you want to run the dev unit tests, you'll need NodeJS v6+.
 
 ## Soon to come
 
+ - A CLI type inferencer and interpreter (so you can run real scripts!)
+ - The ability to hook into npm modules
  - Adjustable color schemes (as a language feature!)
  - Alternatives for colorblindness and accessibility
  - Object orientation and custom types
