@@ -20,6 +20,21 @@ var tokenTypes = {
       this.internal = this.selected;
     }
   },
+  load: function(obj) {
+    if (typeof obj === 'string')
+      obj = JSON.parse(obj);
+    this.builtin = obj.builtin;
+    this.inferred = obj.inferred;
+    this.selected = obj.selected;
+  },
+  serialize: function() {
+    var that = this;
+    return JSON.stringify({
+        builtin: that.builtin,
+        inferred: that.inferred,
+        selected: that.selected,
+      });
+  },
   getObj: function(token) {
     // TODO(nate): fix this to use .internal
     if (this.selected.hasOwnProperty(token))
