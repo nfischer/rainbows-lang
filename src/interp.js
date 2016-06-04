@@ -172,14 +172,14 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     IterationStatement_for3: function(a, b, c, d, e, f, g, h, i) {
       // TODO(nate): fix
-      for (c.rb(); truthy(e.rb()); g.rb()) {
+      for (c.rb(); truthy(e.rb()[0]); g.rb()) {
         i.rb();
       }
       return null;
     },
     IterationStatement_for3var: function(a, b, _var, c, d, e, f, g, h, i) {
       // TODO(nate): fix
-      for (c.rb(); truthy(e.rb()); g.rb()) {
+      for (c.rb(); truthy(e.rb()[0]); g.rb()) {
         i.rb();
       }
       return null;

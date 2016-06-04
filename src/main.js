@@ -1,6 +1,8 @@
 var editor;
 var jscode;
 
+var DEFAULT_TYPE = 'inferred type';
+
 // This will modify the given DOM node to be styled after the given rainbows
 // type
 function addType(node, type, opts) {
@@ -70,7 +72,7 @@ function underlineArguments(funName, line, argTypes) {
       k = -1;
     } else if (level === 0 && name.match(/,\s*/)) {
       k++;
-    } else if (name.match(/[{([]\s*/)) {
+    } else if (k >= 0 && name.match(/[{([]\s*/)) {
       level++;
       addType(node, argTypes[k], { underline: true});
     } else if (name.match(/[})\[]\s*/)) {
@@ -256,7 +258,7 @@ function changeTypeColor(newColor) {
 $(document).ready(function() {
   var node = document.getElementById('typeList');
   rbTypeList.forEach(function (type) {
-    if (type === 'default type')
+    if (type === DEFAULT_TYPE)
       return;
     var d = document.createElement('div');
     d.innerHTML = type;
@@ -282,7 +284,6 @@ var editorError = (function() {
       node.text(msg);
       if (widget) widget.clear();
       widget = editor.addLineWidget(editor.lineCount()-1, d);
-      console.error(msg);
     },
     hide: () => {
       node.text('');
@@ -299,7 +300,7 @@ var outputError = (function() {
   return {
     show: (msg) => {
       node.text(msg);
-      console.warn(msg);
+      console.error(msg);
       if (widget) widget.clear();
       widget = jscode.addLineWidget(1, d);
     },
@@ -375,11 +376,11 @@ $(document).ready(function() {
     });
   });
 });
-var rbTypeList = ['default type', 'string', 'int', 'float', 'bool', 'list', 'dict'];
+var rbTypeList = [DEFAULT_TYPE, 'string', 'int', 'float', 'bool', 'list', 'dict'];
 var updateSlider;
 $(document).ready(function () {
   var matchingGrey = $('.cm-s-default');
-  var rbColorList = rbTypeList.map(x => x === 'default type' ? matchingGrey : $('.rb-type-' + x));
+  var rbColorList = rbTypeList.map(x => x === DEFAULT_TYPE ? matchingGrey : $('.rb-type-' + x));
   var node = {}; // hack: use an object here, because of scoping issues
   /* function updateSlider */
   updateSlider = function (event, ui) {
@@ -387,14 +388,14 @@ $(document).ready(function () {
     node.value.css('background', rbColorList[ui.value].css('color'));
 
     // Remember the user's type selection
-    if (myType === 'default type')
+    if (myType === DEFAULT_TYPE)
       delete tokenTypes.selected[window.currentToken];
     else
       tokenTypes.setVal(window.currentToken, myType, {manual: true});
 
     addType(node.value, myType); // show the link hint for the slider UI
     addType($('#cur-token'), myType); // color the token
-    if (myType !== 'default type') messUpButton(myType);
+    if (myType !== DEFAULT_TYPE) messUpButton(myType);
 
     // infer types, but now we'll remember the user's manual changes
     setTimeout(main, 1);

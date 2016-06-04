@@ -125,7 +125,10 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return 'void';
     },
     IfStatement: function (a, b, cond, d, expr, f, elseCase) {
-      cond.ti();
+      var bool = cond.ti();
+      if (bool !== 'bool')
+        throw new InferenceError('Condition must be of type `bool`');
+
       expr.ti();
       elseCase.ti();
       return 'void';
@@ -198,26 +201,34 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     IterationStatement: (a) => a.ti(),
     IterationStatement_doWhile: function(a, b, c, d, e, f, g) {
       b.ti();
-      e.ti();
+      var bool = e.ti();
+      if (bool !== 'bool')
+        throw new InferenceError('Condition must be of type `bool`');
       return 'void';
     },
     IterationStatement_whileDo: function(a, b, c, d, e) {
-      c.ti();
+      var bool = c.ti();
+      if (bool !== 'bool')
+        throw new InferenceError('Condition must be of type `bool`');
       e.ti();
       return 'void';
     },
     IterationStatement_for3: function(a, b, c, d, e, f, g, h, i) {
       c.ti();
-      e.ti();
       g.ti();
       i.ti();
+      var bool = e.ti()[0];
+      if (bool !== 'bool')
+        throw new InferenceError('Condition must be of type `bool`');
       return 'void';
     },
     IterationStatement_for3var: function(a, b, _var, c, d, e, f, g, h, i) {
       c.ti();
-      e.ti();
       g.ti();
       i.ti();
+      var bool = e.ti()[0];
+      if (bool !== 'bool')
+        throw new InferenceError('Condition must be of type `bool`');
       return 'void';
     },
     IterationStatement_forIn: function(a, b, lhs, c, expr, d, stmt) {
