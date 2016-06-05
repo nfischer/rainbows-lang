@@ -23,6 +23,7 @@ var tokenTypes = {
   load: function(obj) {
     if (typeof obj === 'string')
       obj = JSON.parse(obj);
+    this.result = obj.result;
     this.builtin = obj.builtin;
     this.inferred = obj.inferred;
     this.selected = obj.selected;
@@ -30,6 +31,7 @@ var tokenTypes = {
   serialize: function() {
     var that = this;
     return JSON.stringify({
+        result: that.result,
         builtin: that.builtin,
         inferred: that.inferred,
         selected: that.selected,

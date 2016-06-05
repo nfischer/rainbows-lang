@@ -2,3 +2,4 @@ node_modules/
 
 # Any .rain files I'm testing out
 *.rain
+*.raint

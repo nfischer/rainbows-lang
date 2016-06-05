@@ -113,6 +113,7 @@ function main() {
   // TODO: clear out `env` for any token that isn't currently present
   showOutput('...');
   var resultType = getJsType(editor.getValue());
+  tokenTypes.result = resultType;
 
   // literals
   appendTypeClass('.cm-number');

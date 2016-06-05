@@ -24,6 +24,9 @@
     "url": "https://github.com/nfischer/rainbows/issues"
   },
   "homepage": "https://github.com/nfischer/rainbows#readme",
+  "dependencies": {
+    "shelljs": "^0.7.0"
+  },
   "devDependencies": {
     "ohm-builder": "^0.3.0",
     "shelljs": "^0.7.0",
