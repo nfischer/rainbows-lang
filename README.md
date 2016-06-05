@@ -1,21 +1,25 @@
 # Rainbows
 A prototype of the Rainbows programming language
 
+> Because reading code should be as easy as looking at a picture, and writing
+> code should be as enjoyable as making art
+
 To learn about the motivation, check out the original [one page design
 doc](doc/OnePager3v2.pdf).
 
-Feel free to try out the editor online https://nfischer.github.io/rainbows/ and
-let me know what you think of the project!
+Try out the [online live coding
+environment](https://nfischer.github.io/rainbows/ ) and let me know what you
+think!
 
 ## Browser Compatibility
 
 I'm taking advantage of [css
 variables](https://developers.google.com/web/updates/2016/02/css-variables-why-should-you-care?hl=en)
 to make life a bit easier, so your browser will need to support these. This
-should be fine for Chrome v49+ and most versions of Firefox.
+should be fine for Chrome v49+, Firefox 29+, and Safari 9.1+.
 
-If this project is not compatible with Chrome, Firefox, or Safari, please let me
-know. If you want to run the dev unit tests, you'll need NodeJS v6+.
+If this project is not compatible with these browsers, please let me know. If
+you want to run the dev unit tests, you'll need NodeJS v6+.
 
 ## Language features
 
@@ -32,6 +36,9 @@ know. If you want to run the dev unit tests, you'll need NodeJS v6+.
  - Customize the color scheme by picking new colors for each type
  - Type hints pop up when hovering over any identifier or literal
  - Type errors display at the bottom of the editor
+
+Also, check out the [official vim
+plugin](https://github.com/nfischer/vim-rainbows)!
 
 ## Soon to come
 

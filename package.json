@@ -1,8 +1,12 @@
 {
-  "name": "rainbows",
+  "name": "rainbows-lang",
   "version": "0.0.1",
-  "description": "The rainbows programming language",
+  "description": "The Rainbows programming language",
   "main": "index.js",
+  "bin": {
+    "rain-infer.js":  "bin/rain-infer.js",
+    "rain-interp.js": "bin/rain-interp.js"
+  },
   "scripts": {
     "test": "node scripts/runtests.js",
     "build": "ohm-builder.js src/index.generator.html index.html",
