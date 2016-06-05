@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nfischer/rainbows.git"
+    "url": "git+https://github.com/nfischer/rainbows-lang.git"
   },
   "keywords": [
     "rainbows",
@@ -25,9 +25,9 @@
   "author": "Nate Fischer",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nfischer/rainbows/issues"
+    "url": "https://github.com/nfischer/rainbows-lang/issues"
   },
-  "homepage": "https://github.com/nfischer/rainbows#readme",
+  "homepage": "https://github.com/nfischer/rainbows-lang#readme",
   "dependencies": {
     "shelljs": "^0.7.0"
   },

@@ -8,7 +8,7 @@ To learn about the motivation, check out the original [one page design
 doc](doc/OnePager3v2.pdf).
 
 Try out the [online live coding
-environment](https://nfischer.github.io/rainbows/ ) and let me know what you
+environment](https://nfischer.github.io/rainbows-lang/ ) and let me know what you
 think!
 
 ## Browser Compatibility
@@ -30,7 +30,7 @@ you want to run the dev unit tests, you'll need NodeJS v6+.
  - Type hints for function APIs (a colorful underline serves to remind what type
    the function will implicitly cast your values to)
 
-## [Live coding environment](https://nfischer.github.io/rainbows/)
+## [Live coding environment](https://nfischer.github.io/rainbows-lang/)
 
  - Quickly cast things to a different type just by using the color slider
  - Customize the color scheme by picking new colors for each type
