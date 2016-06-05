@@ -1,8 +1,8 @@
-# Rainbows
+# Rainbows :rainbow:
 A prototype of the Rainbows programming language
 
-> Because reading code should be as easy as looking at a picture, and writing
-> code should be as enjoyable as making art
+<b>*Because coding should be as easy as coloring in the lines, and code should be
+as easy to read as a coloring book*</b> :art:
 
 To learn about the motivation, check out the original [one page design
 doc](doc/OnePager3v2.pdf).
