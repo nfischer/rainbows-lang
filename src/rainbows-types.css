@@ -17,6 +17,10 @@
 }
 
 /* standard Rainbows types */
+.rb-type-keyword {
+  /* TODO(nate): find a better color for this or for the default*/
+  color: grey !important;
+}
 .rb-type-bool {
   color: var(--bool-color) !important;
   font-weight: bold;

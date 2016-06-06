@@ -52,6 +52,14 @@ function domNodeToLineNumber(node) {
   return null;
 }
 
+function lineNumberToDomNode(num) {
+  var line = $('#rainbows-editor .CodeMirror-gutter-wrapper').filter(function(x, y) {
+    return $(y).text() == num;
+  }).parent().children().next().children();
+
+  return line;
+}
+
 // TODO: figure out how to get the real DOM-node here
 function getWordUnderCursor() {
   var word = editor.findWordAt(editor.getCursor());
@@ -84,13 +92,24 @@ function underlineArguments(funName, line, argTypes) {
   });
 }
 
+function underlineReturn(type, line) {
+  line.contents().each(function(a, b) {
+    var node = $(b);
+    var name = node.text();
+    if (name === 'return') {
+      addType(node, type, { underline: true});
+    }
+  });
+}
+
 function appendTypeClass(originalClassName) {
   $('#rainbows-editor ' + originalClassName).each(function() {
     var output = $(this).text();
     var literalsMap = {
-      '.cm-atom'  : () => 'bool',
-      '.cm-string': () => 'string',
-      '.cm-number': (x) => x.match(/\./) ? 'float' : 'int',
+      '.cm-keyword' : () => 'keyword',
+      '.cm-atom'    : () => 'bool',
+      '.cm-string'  : () => 'string',
+      '.cm-number'  : (x) => x.match(/\./) ? 'float' : 'int',
     };
     var obj = tokenTypes.getObj(output);
     if (literalsMap[originalClassName]) {
@@ -115,6 +134,9 @@ function main() {
   var resultType = getJsType(editor.getValue());
   tokenTypes.result = resultType;
 
+  // keywords
+  appendTypeClass('.cm-keyword');
+
   // literals
   appendTypeClass('.cm-number');
   appendTypeClass('.cm-string');
@@ -128,7 +150,23 @@ function main() {
   appendTypeClass('.cm-variable-2');
   appendTypeClass('.cm-property');
 
-  // figure out more stuff
+  // underline return statements
+  var funName = [];
+  var lineNum = 0;
+  editor.eachLine(function (lineHandle) {
+    lineNum++; // 1, 2, 3, ... (not 0)
+    if (!funName)
+      return;
+    var contents = editor.getLine(editor.getLineNumber(lineHandle));
+    var match1 = contents.match(/^\s*function\s+([a-zA-Z0-9_]+)\s*/);
+    var match2 = contents.match(/^\s*return\s+(.*)\s*;/);
+    if (match1) {
+      funName = [match1[1]].concat(funName);
+      return;
+    } else if (match2) {
+      underlineReturn(tokenTypes.getVal(funName[0]), lineNumberToDomNode(editor.getLineNumber(lineHandle)+1));
+    }
+  });
 
   // now interpret it
   if (resultType) { // this is null if type inference fails
@@ -140,7 +178,7 @@ function main() {
       else
         result = JSON.stringify(val);
       showOutput(result, resultType);
-    }, 10);
+    }, 30);
   } else {
     showOutput('Please fix your type errors');
   }
@@ -160,7 +198,7 @@ $(document).ready(function() {
   });
 
   editor.on('change', function() {
-    setTimeout(main, 1);
+    setTimeout(main, 30);
   });
 
   var sliderMsg = 'Click on a grey variable to assign its type';
@@ -399,7 +437,7 @@ $(document).ready(function () {
     if (myType !== DEFAULT_TYPE) messUpButton(myType);
 
     // infer types, but now we'll remember the user's manual changes
-    setTimeout(main, 1);
+    setTimeout(main, 30);
   }
   $('#slider-1').slider({
     min: 0,
