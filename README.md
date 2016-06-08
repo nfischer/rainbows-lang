@@ -1,6 +1,8 @@
 # Rainbows :rainbow:
 A prototype of the Rainbows programming language
 
+[![Build Status](https://travis-ci.org/nfischer/rainbows-lang.svg?branch=master)](https://travis-ci.org/nfischer/rainbows-lang)
+
 <b>*Because coding should be as easy as coloring in the lines, and code should be
 as easy to read as a coloring book*</b> :art:
 
