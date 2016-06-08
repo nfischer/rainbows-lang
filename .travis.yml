@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - "6"
+sudo: false
+os: linux
+
+script:
+  - npm test
+  - npm run build
+  - git diff --quiet || { echo 'Remember to regenerate HTML' ; exit 1; }

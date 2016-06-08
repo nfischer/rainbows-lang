@@ -33,7 +33,6 @@
   },
   "devDependencies": {
     "ohm-builder": "^0.3.0",
-    "shelljs": "^0.7.0",
     "watch": "^0.18.0"
   },
   "directories": {
