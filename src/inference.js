@@ -108,8 +108,11 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       var thisType = a.ti();
       var argType = c.ti();
       var name;
+      var argName = c.interval.contents;
       if (thisType === 'dict') {
-        name = `${a.interval.contents}#${c.interval.contents}`;
+        if (argType === 'string')
+          argName = argName.replace(/["']/g, '');
+        name = `${a.interval.contents}#${argName}`;
       } else if (thisType === 'string') {
         if (argType !== 'int')
           throw new InferenceError('Cannot index with a non-integer');
@@ -165,13 +168,16 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return x.ti();
     },
     VariableDeclaration: function (x, y) {
-      var rhsType = y.ti()[0];
       var id = x.interval.contents;
       if (id.match(idRegex)) {
+        var oldNameSpace = nameSpace;
+        nameSpace += id + '#';
+        var rhsType = y.ti()[0];
         var lhsType = tokenTypes.getVal(id);
         if (!areCompatibleTypes(lhsType, rhsType))
           throw new InferenceError(`cannot assign ${rhsType} to ${lhsType} (${this.interval.contents})`);
         tokenTypes.setVal(x.interval.contents, rhsType);
+        nameSpace = oldNameSpace;
       }
       return tokenTypes.getVal(id);
     },
@@ -287,22 +293,17 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     Arguments: (a, b, c) => b.ti(),
     PrimaryExpression_parenExpr: (x, y, z) => y.ti(),
     ObjectLiteral_noTrailingComma: function (a, b, c) {
-      var oldNameSpace = nameSpace;
-      nameSpace += a.interval.contents + '#';
       b.ti();
-      nameSpace = oldNameSpace;
       return 'dict';
     },
     ObjectLiteral_trailingComma: function (a, b, c, d) {
-      var oldNameSpace = nameSpace;
-      nameSpace += a.interval.contents + '#';
-      b.ti();
-      nameSpace = oldNameSpace;
+      var t = b.ti();
       return 'dict'
     },
     PropertyAssignment_simple: function (a, b, c) {
       var type = c.ti();
       tokenTypes.setVal(nameSpace + a.interval.contents, type);
+      tokenTypes.setVal(a.interval.contents, type);
       return type
     },
   };
