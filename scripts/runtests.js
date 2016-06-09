@@ -246,6 +246,18 @@ doTest(
 doTest(
 `[1, 2, 3].length`, 'int', 3);
 
+doTest(
+`bool("some string")`, 'bool', true);
+
+doTest(
+`int(4.3)`, 'int', 4);
+
+doTest(
+`float(4)`, 'float', 4.0);
+
+doTest(
+`string(4)`, 'string', '4');
+
 // set('+e');
 // var retStatus = 0;
 // cd(path.join(__dirname, '..', 'test'));
