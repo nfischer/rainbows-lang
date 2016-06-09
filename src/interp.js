@@ -2,6 +2,7 @@ var rbInterp;
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   var tokenTypes = require('./types');
+  var builtins = require('./builtins');
 }
 
 (function () {
@@ -203,16 +204,21 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     CallExpression_memberExpExp: function(x, y) {
       // TODO(nate): fix this line to use .rb()
       var funDecl = env[x.interval.contents];
-      if (x.interval.contents === 'range') return [1, 2, 3, 4]; // TODO: change this
+      var ret;
       var funInv  = { args: y.rb() };
-
-      var oldEnv = env;
-      env = Object.create(oldEnv);
-      for (var k = 0; k < funInv.args.length; k++) {
-        env[funDecl.args[k]] = funInv.args[k];
+      if (funDecl) {
+        var oldEnv = env;
+        env = Object.create(oldEnv);
+        for (var k = 0; k < funInv.args.length; k++) {
+          env[funDecl.args[k]] = funInv.args[k];
+        }
+        ret = funDecl.body.rb(); // execute it with the new environment
+        env = oldEnv;
+      } else if ((funDecl = builtins[x.interval.contents]) !== undefined) {
+        ret = funDecl(...funInv.args);
+      } else {
+        throw new RuntimeError('undefined function');
       }
-      var ret = funDecl.body.rb(); // execute it with the new environment
-      env = oldEnv;
 
       var type = x.ti();
       if (type === 'string')
@@ -225,8 +231,23 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
         return ret;
     },
     Arguments: (a, b, c) => b.rb(),
-    MemberExpression_propRefExp: (a, b, c) => a.rb()[c.interval.contents],
-    MemberExpression_arrayRefExp: (a, b, c, d) => a.rb()[c.rb()],
+    MemberExpression_propRefExp: (a, b, c) => {
+      var that = a.rb();
+      if (that[c.interval.contents] !== undefined) {
+        return that[c.interval.contents];
+      } else {
+        throw new RuntimeError('builtin properties not yet supported');
+      }
+    },
+    MemberExpression_arrayRefExp: (a, b, c, d) => {
+      var that = a.rb();
+      var idx = c.rb();
+      if (that[idx] !== undefined) {
+        return that[idx];
+      } else {
+        throw new RuntimeError('builtin properties not yet supported');
+      }
+    },
     PrimaryExpression_parenExpr: (x, y, z) => y.rb(),
     ObjectLiteral_noTrailingComma: (a, b, c) => {
       var ret = {};

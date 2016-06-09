@@ -2,6 +2,17 @@
 
 'use strict';
 
+require('shelljs/global');
+
+// Swap out console.log
+var oldConsoleLog = console.log;
+var logOutput = [];
+console.log = function(...args) {
+  logOutput = logOutput.concat(args);
+}
+
+// Note: to get debugging output, use test.log()
+
 var assert = require('assert');
 var ohm = require('../lib/ohm/dist/ohm');
 var fs = require('fs');
@@ -9,7 +20,6 @@ var path = require('path');
 var inference = require('../src/inference');
 var tokenTypes = require('../src/types');
 var interp = require('../src/interp');
-require('shelljs/global');
 var ohmFile = path.join(__dirname, '..', 'lib', 'ohm', 'examples', 'ecmascript', 'es5.ohm');
 
 set('-e');
@@ -28,8 +38,15 @@ s.addOperation(
 
 var m;
 
+var test = {
+  log: function(...args) {
+    console.warn(...args);
+  },
+}
+
 function doTest(expr, type, val, setup) {
   tokenTypes.refresh(true);
+  logOutput = []; // clear out the log
   if (setup)
     setup();
   var m = es5.match(expr);
@@ -204,6 +221,30 @@ function getLength(str) {
   }
 }
 getLength('hi')`, 'int', null);
+
+//
+// builtins
+//
+
+doTest(
+`print('hello world');
+print('goodbye');
+"foo"`, 'string', 'foo');
+assert.ok(logOutput[0] === 'hello world');
+assert.ok(logOutput[1] === 'goodbye');
+
+doTest(
+`print('new');
+print('old');
+"foo"`, 'string', 'foo');
+assert.ok(logOutput[0] === 'new');
+assert.ok(logOutput[1] === 'old');
+
+doTest(
+`"foobar".length`, 'int', 6);
+
+doTest(
+`[1, 2, 3].length`, 'int', 3);
 
 // set('+e');
 // var retStatus = 0;

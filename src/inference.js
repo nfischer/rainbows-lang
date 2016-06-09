@@ -8,6 +8,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 (function () {
   var functionName = '';
   var nameSpace = '';
+  var memberOf;
   var idRegex = /[a-zA-Z_][a-zA-Z0-9_]*/;
   function InferenceError(message) {
     this.name = 'InferenceError';
@@ -91,11 +92,34 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     decimalLiteral_integerOnly: function (x, y) { return 'int' },
     decimalLiteral_bothParts: function (x, y, z, w) { return 'float' },
     MemberExpression_propRefExp: function (a, b, c) {
-      return tokenTypes.getVal(a.interval.contents + '#' + c.interval.contents)
+      var name;
+      var type = a.ti();
+      if (type === 'dict') {
+        name = `${a.interval.contents}#${c.interval.contents}`;
+      } else if (type === 'bool') {
+        throw new InferenceError(`bools (${a.interval.contents}) cannot have properties`);
+      } else {
+        name = `$${type}#${c.interval.contents}`;
+      }
+      return tokenTypes.getVal(name)
     },
     MemberExpression_arrayRefExp: function (a, b, c, d) {
       // TODO(nate): fix this, I'm just not sure how
-      return 'unknown'
+      var thisType = a.ti();
+      var argType = c.ti();
+      var name;
+      if (thisType === 'dict') {
+        name = `${a.interval.contents}#${c.interval.contents}`;
+      } else if (thisType === 'string') {
+        if (argType !== 'int')
+          throw new InferenceError('Cannot index with a non-integer');
+        return 'string';
+      } else if (thisType === 'list') {
+        return 'unknown'; // TODO: fix this if possible
+      } else if (thisType === 'bool' || thisType === 'int' || thisType === 'float') {
+        throw new InferenceError(`Cannot index off ${thisType} (${a.interval.contents})`);
+      }
+      return tokenTypes.getVal(name);
     },
     Block: function (a, b, c) { b.ti(); return 'void' },
     FormalParameter: (a) => {
