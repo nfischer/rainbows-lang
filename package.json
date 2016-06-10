@@ -12,7 +12,7 @@
     "build": "ohm-builder.js src/index.generator.html index.html",
     "build:watch": "watch 'ohm-builder.js src/index.generator.html index.html' src",
     "after-travis": "travis-check-changes",
-    "deploy": "node scripts/deploy.js"
+    "deploy": "deploy-gh"
   },
   "repository": {
     "type": "git",
@@ -34,6 +34,7 @@
     "shelljs": "^0.7.0"
   },
   "devDependencies": {
+    "deploy-gh": "^0.1.2",
     "ohm-builder": "^0.3.0",
     "travis-check-changes": "^0.2.0",
     "watch": "^0.18.0"
