@@ -6,12 +6,22 @@
   color: grey !important;
 }
 
-/* Rainbows default color scheme */
+/* /1* Rainbows default color scheme (evenly spaced in the spectrum) *1/ */
+/* :root { */
+/*   --string-color: hsl(340,  100%, 60%); */
+/*   --bool-color:   hsl(40,   100%, 60%); */
+/*   --list-color:   hsl(100,  100%, 60%); */
+/*   --float-color:  hsl(160,  100%, 60%); */
+/*   --int-color:    hsl(220,  100%, 60%); */
+/*   --dict-color:   hsl(280,  100%, 60%); */
+/* } */
+
+/* Rainbows default color scheme (custom-picked) */
 :root {
-  --bool-color: #D39BBA;
+  --bool-color:   hsl(60,   100%, 60%);
   --string-color: #FF4F4F;
   --int-color: #0084FF;
-  --float-color: orange;
+  --float-color:  hsl(140,  100%, 60%);
   --dict-color: #CE00CE;
   --list-color: #00BA00;
 }

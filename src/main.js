@@ -288,10 +288,34 @@ function interp(expr) {
   }
 }
 
+window.changeType = 'int';
+
+function getCssVariable(type) {
+  var styles = getComputedStyle(document.querySelector('.rb-type-' + type));
+  return String(styles.getPropertyValue('color')).trim();
+}
+
+function setCssVariable(type, newColor) {
+  document.documentElement.style.setProperty(`--${type}-color`, newColor);
+}
+
 // change `type` to now be colored as `newColor`, regardless of before
 function changeTypeColor(newColor) {
+  var evenMode = document.getElementById('even-spread-box').checked;
   var type = window.changeType;
-  document.documentElement.style.setProperty(`--${type}-color`, '#' + newColor);
+  var newHue = newColor.hsv[0];
+  var oldHue = tinycolor(getCssVariable(type)).toHsl().h;
+  var hueDiff = newHue - oldHue;
+  setCssVariable(type, '#'+newColor);
+  if (evenMode) {
+    rbTypeList.forEach(function (tName) {
+      if (tName === 'inferred type' || tName === type)
+        return;
+      // spin every other color's hue to compensate
+      setCssVariable(tName,
+          tinycolor(getCssVariable(tName)).spin(hueDiff).toHslString());
+    });
+  }
 }
 
 $(document).ready(function() {
@@ -309,8 +333,7 @@ $(document).ready(function() {
 function messUpButton(type) {
   $('#mytype').text(type);
   window.changeType = type;
-  var styles = getComputedStyle(document.querySelector('.rb-type-' + type));
-  var col = String(styles.getPropertyValue('color')).trim();
+  var col = getCssVariable(type);
   document.getElementById('color-btn').jscolor.fromString(col);
 }
 
