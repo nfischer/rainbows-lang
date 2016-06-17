@@ -1,7 +1,5 @@
 #!/usr/bin/env node
-var shell = require('shelljs');
 var ohm = require('../lib/ohm/dist/ohm');
-var tokenTypes = require('../src/types');
 var inference = require('../src/inference');
 var interp = require('../src/interp');
 var fs = require('fs');

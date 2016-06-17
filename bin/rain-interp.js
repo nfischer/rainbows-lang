@@ -33,8 +33,8 @@ try {
     var returnType = tokenTypes.result || 'unknown';
     if (returnType) {
       var result = rbInstance.s(m).rb();
-      console.log((typeof typeMap[returnType] === 'function')
-                  && typeMap[returnType](result));
+      console.log((typeof typeMap[returnType] === 'function') &&
+                  typeMap[returnType](result));
     }
   } else {
     console.error(m.message);

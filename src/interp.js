@@ -1,3 +1,5 @@
+/* jshint unused: false */
+/* jshint evil: true */
 var rbInterp;
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
@@ -130,7 +132,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     ArrayLiteral: function (x, y, z) {
       return y.rb();
     },
-    stringLiteral: function (x, y, z) { return eval(this.interval.contents); },
+    stringLiteral: function (x, y, z) { return y.interval.contents; },
     booleanLiteral: function (x) { return JSON.parse(this.interval.contents); },
     ReturnStatement: (x, y, z, w) => {
       throw { val: z.rb()[0], };
@@ -262,7 +264,13 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
         val: c.rb(),
       };
     },
-    ObjectLiteral_trailingComma: (a, b, c, d) => eval(x.interval.contents),
+    ObjectLiteral_trailingComma: (a, b, c, d) => {
+      var ret = {};
+      b.rb().forEach((x) => {
+        ret[x.key] = x.val;
+      });
+      return ret;
+    },
   };
 })();
 

@@ -1,8 +1,14 @@
+/* globals $, window, tokenTypes, document, CodeMirror, Blob, ohm, typeInference, tinycolor, rbExamples, getComputedStyle, rbInterp, URL */
+/* jshint unused: false */
 var editor;
 var jscode;
 
 var DEFAULT_TYPE = 'inferred type';
+var updateSlider;
+var outputError;
+var m;
 
+var rbTypeList = [DEFAULT_TYPE, 'string', 'int', 'float', 'bool', 'list', 'dict'];
 // This will modify the given DOM node to be styled after the given rainbows
 // type
 function addType(node, type, opts) {
@@ -17,7 +23,7 @@ function addType(node, type, opts) {
                 (opts.underline ? 'arg-' : '') +
                 'type-\\S+(.*)$'
               );
-  var m = node.attr('class')
+  var m = node.attr('class');
   m = m && m.match(regex);
   if (m) node.attr('class', m[1] + ' ' + m[2]);
   node.addClass('rb-' + (opts.underline ? 'arg-' : '') + 'type-' + type);
@@ -171,7 +177,7 @@ function main() {
   // now interpret it
   if (resultType) { // this is null if type inference fails
     setTimeout(function() {
-      var val = interp(editor.getValue());
+      var val = interp();
       var result;
       if (val === null || val === undefined)
         result = '[no expression value]';
@@ -269,7 +275,7 @@ $(document).ready(function() {
       rbInterp);
 });
 
-function interp(expr) {
+function interp() {
   // var m = grammars.Rainbows.match(expr);
   // if (m.succeeded()) {
   //   return s(m).rb();
@@ -355,7 +361,7 @@ var editorError = (function() {
 })();
 
 // TODO(nate): get this div to display
-var outputError = (function() {
+outputError = (function() {
   var d = document.createElement('div');
   var node = $(d).addClass('playground-error-msg');
   var widget;
@@ -374,9 +380,8 @@ var outputError = (function() {
 })();
 
 // This accepts a javascript expression and returns a string denoting its type
-var m;
 function getJsType(expr) {
-  var widget;
+  // var widget;
   m = grammars.Rainbows.match(expr);
   if (m.succeeded()) {
     try {
@@ -438,8 +443,6 @@ $(document).ready(function() {
     });
   });
 });
-var rbTypeList = [DEFAULT_TYPE, 'string', 'int', 'float', 'bool', 'list', 'dict'];
-var updateSlider;
 $(document).ready(function () {
   var matchingGrey = $('.cm-s-default');
   var rbColorList = rbTypeList.map(x => x === DEFAULT_TYPE ? matchingGrey : $('.rb-type-' + x));
@@ -461,7 +464,7 @@ $(document).ready(function () {
 
     // infer types, but now we'll remember the user's manual changes
     setTimeout(main, 30);
-  }
+  };
   $('#slider-1').slider({
     min: 0,
     max: rbTypeList.length - 1,
@@ -472,7 +475,7 @@ $(document).ready(function () {
   node.value.css('background', matchingGrey.css('color'));
   $('.ui-widget-content').css('background', '#E0E9EC');
   $('#slider-1').slider('option', 'disabled', true);
-})
+});
 
 function saveFile() {
   var a = document.createElement('a');

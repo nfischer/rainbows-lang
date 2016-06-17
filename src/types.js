@@ -39,6 +39,7 @@ var tokenTypes = {
   },
   getObj: function(token) {
     // TODO(nate): fix this to use .internal
+    var v;
     if (this.selected.hasOwnProperty(token))
       v = this.selected[token];
     else if (this.inferred.hasOwnProperty(token))

@@ -1,3 +1,4 @@
+/* jshint unused: false */
 var typeInference;
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
@@ -54,7 +55,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       '%': 'mod',
     };
     var errorObj = {};
-    var a = Object.assign({}, opPairs);
+    a = Object.assign({}, opPairs);
     a['+'] = null;
     errorObj['string'] = a;
     errorObj['dict'] = opPairs;
@@ -66,10 +67,10 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   }
 
   typeInference = {
-    Program: function(x, y) { var lines = y.ti(); return lines[lines.length-1] },
-    SourceElement: function(x) { return x.ti() },
-    ExpressionStatement: function (x, y) { return x.ti() },
-    Expression: function (x) { return x.ti() },
+    Program: function(x, y) { var lines = y.ti(); return lines[lines.length-1]; },
+    SourceElement: function(x) { return x.ti(); },
+    ExpressionStatement: function (x, y) { return x.ti(); },
+    Expression: function (x) { return x.ti(); },
     EqualityExpression_equal: (x, y, z) => 'bool',
     EqualityExpression_notEqual: (x, y, z) => 'bool',
     EqualityExpression_eq: (x, y, z) => 'bool',
@@ -89,8 +90,8 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     UnaryExpression_preIncrement:  (x, y) => y.ti(),
     UnaryExpression_preDecrement:  (x, y) => y.ti(),
     UnaryExpression_lnot:  (x, y) => y.ti(),
-    decimalLiteral_integerOnly: function (x, y) { return 'int' },
-    decimalLiteral_bothParts: function (x, y, z, w) { return 'float' },
+    decimalLiteral_integerOnly: function (x, y) { return 'int'; },
+    decimalLiteral_bothParts: function (x, y, z, w) { return 'float'; },
     MemberExpression_propRefExp: function (a, b, c) {
       var name;
       var type = a.ti();
@@ -101,7 +102,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       } else {
         name = `$${type}#${c.interval.contents}`;
       }
-      return tokenTypes.getVal(name)
+      return tokenTypes.getVal(name);
     },
     MemberExpression_arrayRefExp: function (a, b, c, d) {
       // TODO(nate): fix this, I'm just not sure how
@@ -124,7 +125,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       }
       return tokenTypes.getVal(name);
     },
-    Block: function (a, b, c) { b.ti(); return 'void' },
+    Block: function (a, b, c) { b.ti(); return 'void'; },
     FormalParameter: (a) => {
       var ret = tokenTypes.getObj(a.interval.contents);
       if (typeof ret === 'string') {
@@ -186,21 +187,21 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     NonemptyListOf: function (first, _sep, others) {
       return [first.ti()].concat(others.ti());
     },
-    TryStatement: function (x) { return x.ti() },
-    TryStatement_tryCatch: function (x, y, z) { y.ti(); z.ti(); return 'void' },
-    TryStatement_tryFinally: function (x, y, z) { y.ti(); z.ti(); return 'void' },
-    TryStatement_tryCatchFinally: function (x, y, z, w) { y.ti(); z.ti(); w.ti(); return 'void' },
-    Catch: function (a, b, c, d, e) { c.ti(); e.ti(); return 'void' },
-    Finally: function (a, b) { b.ti(); return 'void' },
-    ArrayLiteral: function (x, y, z) { return 'list' },
-    stringLiteral: function (x, y, z) { return 'string' },
-    booleanLiteral: function (x) { return 'bool' },
+    TryStatement: function (x) { return x.ti(); },
+    TryStatement_tryCatch: function (x, y, z) { y.ti(); z.ti(); return 'void'; },
+    TryStatement_tryFinally: function (x, y, z) { y.ti(); z.ti(); return 'void'; },
+    TryStatement_tryCatchFinally: function (x, y, z, w) { y.ti(); z.ti(); w.ti(); return 'void'; },
+    Catch: function (a, b, c, d, e) { c.ti(); e.ti(); return 'void'; },
+    Finally: function (a, b) { b.ti(); return 'void'; },
+    ArrayLiteral: function (x, y, z) { return 'list'; },
+    stringLiteral: function (x, y, z) { return 'string'; },
+    booleanLiteral: function (x) { return 'bool'; },
     ReturnStatement: function (a, b, c, d) {
       var type = c.ti()[0];
       if (type !== 'unknown') {
         tokenTypes.setVal(functionName, type);
       }
-      return 'void'
+      return 'void';
     },
     PostfixExpression_postIncrement: function(a, b, c) {
       a.ti();
@@ -298,13 +299,13 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     ObjectLiteral_trailingComma: function (a, b, c, d) {
       var t = b.ti();
-      return 'dict'
+      return 'dict';
     },
     PropertyAssignment_simple: function (a, b, c) {
       var type = c.ti();
       tokenTypes.setVal(nameSpace + a.interval.contents, type);
       tokenTypes.setVal(a.interval.contents, type);
-      return type
+      return type;
     },
   };
 })();

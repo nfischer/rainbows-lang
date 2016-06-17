@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-
+/* globals config, set */
 'use strict';
 
 require('shelljs/global');
 
 // Swap out console.log
-var oldConsoleLog = console.log;
+// var oldConsoleLog = console.log;
 var logOutput = [];
 console.log = function(...args) {
   logOutput = logOutput.concat(args);
-}
+};
 
 // Note: to get debugging output, use test.log()
 
@@ -36,13 +36,11 @@ s.addOperation(
   'rb()',
   interp.rbInterp);
 
-var m;
-
 var test = {
   log: function(...args) {
     console.warn(...args);
   },
-}
+};
 
 function doTest(expr, type, val, setup) {
   tokenTypes.refresh(true);
@@ -258,6 +256,7 @@ doTest(
 doTest(
 `string(4)`, 'string', '4');
 
+test.log('All tests passed!');
 // set('+e');
 // var retStatus = 0;
 // cd(path.join(__dirname, '..', 'test'));

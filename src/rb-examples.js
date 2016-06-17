@@ -1,3 +1,5 @@
+
+/* jshint unused: false */
 var rbExamples = [
 { name: 'Fibonacci',
   code:

@@ -7,7 +7,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   var tokenTypes = require('./types');
 }
 
-var builtins = {}
+var builtins = {};
 function define(name, memberOf, typeInfo, lambda) {
   if (memberOf) {
     // it's a member builtin
