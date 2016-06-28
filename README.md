@@ -3,8 +3,8 @@ A prototype of the Rainbows programming language
 
 [![Build Status](https://travis-ci.org/nfischer/rainbows-lang.svg?branch=master)](https://travis-ci.org/nfischer/rainbows-lang)
 
-<b>*Because coding should be as easy as coloring in the lines, and code should be
-as easy to read as a coloring book*</b> :art:
+*Because coding should be as easy as coloring in the lines, and programs should
+be as readable as coloring books* :art:
 
 To learn about the motivation, check out the original [one page design
 doc](doc/OnePager3v2.pdf).
@@ -17,8 +17,8 @@ think!
 
 I'm taking advantage of [css
 variables](https://developers.google.com/web/updates/2016/02/css-variables-why-should-you-care?hl=en)
-to make life a bit easier, so your browser will need to support these. This
-should be fine for Chrome v49+, Firefox 29+, and Safari 9.1+.
+, so your browser will need to support these. This should be fine for Chrome
+v49+, Firefox 29+, and Safari 9.1+. Also, there is no mobile support as of yet.
 
 If this project is not compatible with these browsers, please let me know. If
 you want to run the dev unit tests, you'll need NodeJS v6+.
@@ -44,18 +44,15 @@ plugin](https://github.com/nfischer/vim-rainbows)!
 
 ## Soon to come
 
- - A CLI type inferencer and interpreter (so you can run real scripts!)
  - The ability to hook into npm modules
- - Adjustable color schemes (as a language feature!)
  - Alternatives for colorblindness and accessibility
  - Object orientation and custom types
- - A Vim filetype plugin to help you develop using Rainbows
- - Types for expressions will be shown by highlighting the surrounding brackets
-   in the appropriate color
+ - Types for expressions will be shown by highlighting the surrounding
+   parentheses in the appropriate color
 
 ## Contributing (help is appreciated!)
 
-The best way you can contribute right now is to help think of scenarios where
+The best way you can contribute right now is to help think of examples where
 Rainbows shines! If you have a short code snippet you think Rainbows would help
 make more readable, feel free to suggest it an issue or send a PR against [the
 examples list](src/rb-examples.js).
