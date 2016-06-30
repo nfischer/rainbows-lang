@@ -25,7 +25,6 @@
 <script type="text/ohm-js" src="src/rainbows.ohm"></script>
 </head>
 <body>
-<p hidden>
   <!-- This is to make sure we have at least one instance of each rb-type class -->
   <div class="rb-type-bool"></div>
   <div class="rb-type-string"></div>
@@ -33,7 +32,6 @@
   <div class="rb-type-float"></div>
   <div class="rb-type-dict"></div>
   <div class="rb-type-list"></div>
-</p>
 <h1>
   <span class="rb-type-string">R</span><span class="rb-type-dict">a</span><span class="rb-type-int">i</span><span class="rb-type-list">N</span><span class="rb-type-string">B</span><span class="rb-type-dict">o</span><span class="rb-type-int">W</span><span class="rb-type-list">s</span>
 </h1>
@@ -48,12 +46,11 @@
 <div>
   <button id="save-file"  class="hint--bounce hint--rounded hint--top" aria-label="Please allow this to download multiple files" onclick="saveFile()">Download this file!</button>
 </div>
-</div>
 </td>
 <td>
 <div class="color-changer">
 <p id="msg"></p>
-<div id="slider-1" myval="40"=></div>
+<div id="slider-1" myval="40"></div>
 <button onclick="var s = $('#slider-1'); s.slider('value', 0); updateSlider(null, {value: 0}); main()" id="button1">Reset</button>
 <br>
 <div class="dropdown">
