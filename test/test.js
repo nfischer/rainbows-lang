@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* globals config, set, describe, it, beforeEach */
+/* globals config, set, describe, it, beforeEach, before */
 'use strict';
 
 require('shelljs/global');
@@ -29,12 +29,6 @@ s.addOperation(
 s.addOperation(
   'rb()',
   interp.rbInterp);
-
-var test = {
-  log: function(...args) {
-    console.warn(...args);
-  },
-};
 
 let logOutput;
 
