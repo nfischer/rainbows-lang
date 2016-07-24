@@ -56,3 +56,16 @@ The best way you can contribute right now is to help think of examples where
 Rainbows shines! If you have a short code snippet you think Rainbows would help
 make more readable, feel free to suggest it an issue or send a PR against [the
 examples list](src/rb-examples.js).
+
+## Building the project
+
+First, install it (**and the git submodule dependencies!**)
+
+```Bash
+$ git clone --recursive https://github.com/nfischer/rainbows-lang.git
+$ cd rainbows-lang/
+$ npm install
+```
+
+Next, run it in the browser (usually on http://127.0.0.1:8080/) using `npm
+start`

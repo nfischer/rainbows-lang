@@ -8,11 +8,9 @@
     "rain-interp.js": "bin/rain-interp.js"
   },
   "scripts": {
+    "start": "http-server",
     "test": "nyc --reporter=text --reporter=lcov mocha",
     "lint": "jshint src test bin",
-    "build": "ohm-builder.js src/index.generator.html index.html",
-    "build:watch": "watch 'npm run build' src",
-    "after-travis": "travis-check-changes",
     "posttest": "npm run lint",
     "deploy": "deploy-gh"
   },
@@ -37,11 +35,10 @@
   },
   "devDependencies": {
     "deploy-gh": "^0.1.2",
+    "http-server": "^0.9.0",
     "jshint": "^2.9.2",
     "mocha": "^2.5.3",
     "nyc": "^6.6.1",
-    "ohm-builder": "^0.4.0",
-    "travis-check-changes": "^0.2.0",
     "watch": "^0.18.0"
   },
   "directories": {

@@ -6,5 +6,3 @@ os: linux
 
 script:
   - npm test
-  - npm run build
-  - npm run after-travis 'Remember to regenerate HTML'
