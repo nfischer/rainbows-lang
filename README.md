@@ -67,5 +67,4 @@ $ cd rainbows-lang/
 $ npm install
 ```
 
-Next, run it in the browser (usually on http://127.0.0.1:8080/) using `npm
-start`
+Next, run it in the browser using `npm start`.
