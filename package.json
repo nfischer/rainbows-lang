@@ -8,7 +8,7 @@
     "rain-interp.js": "bin/rain-interp.js"
   },
   "scripts": {
-    "start": "http-server",
+    "start": "opener http://127.0.0.1:8080 && http-server",
     "test": "nyc --reporter=text --reporter=lcov mocha",
     "lint": "jshint src test bin",
     "posttest": "npm run lint",
@@ -39,6 +39,7 @@
     "jshint": "^2.9.2",
     "mocha": "^2.5.3",
     "nyc": "^6.6.1",
+    "opener": "^1.4.1",
     "watch": "^0.18.0"
   },
   "directories": {
