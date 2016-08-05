@@ -21,7 +21,7 @@ config.silent = true;
 
 var contents = fs.readFileSync(ohmFile);
 var es5 = ohm.grammars(contents).ES5;
-var s = es5.semantics();
+var s = es5.createSemantics();
 s.addOperation(
   'ti()',
   inference.typeInference);

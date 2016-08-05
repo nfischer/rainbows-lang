@@ -266,7 +266,7 @@ var s;
 var grammars = {};
 $(document).ready(function() {
   grammars.Rainbows = ohm.grammarFromScriptElement();
-  s = grammars.Rainbows.semantics();
+  s = grammars.Rainbows.createSemantics();
   s.addOperation(
       'ti()',
       typeInference);

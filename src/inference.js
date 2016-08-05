@@ -39,7 +39,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   function arithHelper(x, op, y) {
     var a = x.ti();
     var b = y.ti();
-    var opStr = op.interval.contents;
+    var opStr = op.sourceString;
     var ret;
     // most constrained types go first
     ['dict', 'list', 'bool', 'string', 'float', 'int'].forEach(x => {
@@ -96,11 +96,11 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       var name;
       var type = a.ti();
       if (type === 'dict') {
-        name = `${a.interval.contents}#${c.interval.contents}`;
+        name = `${a.sourceString}#${c.sourceString}`;
       } else if (type === 'bool') {
-        throw new InferenceError(`bools (${a.interval.contents}) cannot have properties`);
+        throw new InferenceError(`bools (${a.sourceString}) cannot have properties`);
       } else {
-        name = `$${type}#${c.interval.contents}`;
+        name = `$${type}#${c.sourceString}`;
       }
       return tokenTypes.getVal(name);
     },
@@ -109,11 +109,11 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       var thisType = a.ti();
       var argType = c.ti();
       var name;
-      var argName = c.interval.contents;
+      var argName = c.sourceString;
       if (thisType === 'dict') {
         if (argType === 'string')
           argName = argName.replace(/["']/g, '');
-        name = `${a.interval.contents}#${argName}`;
+        name = `${a.sourceString}#${argName}`;
       } else if (thisType === 'string') {
         if (argType !== 'int')
           throw new InferenceError('Cannot index with a non-integer');
@@ -121,21 +121,21 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       } else if (thisType === 'list') {
         return 'unknown'; // TODO: fix this if possible
       } else if (thisType === 'bool' || thisType === 'int' || thisType === 'float') {
-        throw new InferenceError(`Cannot index off ${thisType} (${a.interval.contents})`);
+        throw new InferenceError(`Cannot index off ${thisType} (${a.sourceString})`);
       }
       return tokenTypes.getVal(name);
     },
     Block: function (a, b, c) { b.ti(); return 'void'; },
     FormalParameter: (a) => {
-      var ret = tokenTypes.getObj(a.interval.contents);
+      var ret = tokenTypes.getObj(a.sourceString);
       if (typeof ret === 'string') {
-        tokenTypes.setVal(a.interval.contents, ret);
-        ret = tokenTypes.getObj(a.interval.contents);
+        tokenTypes.setVal(a.sourceString, ret);
+        ret = tokenTypes.getObj(a.sourceString);
       }
       return ret;
     },
     FunctionDeclaration: function (a, id, c, params, e, f, body, h) {
-      functionName = id.interval.contents;
+      functionName = id.sourceString;
       if (tokenTypes.inferred[functionName]) {
         throw new InferenceError('Cannot declare class twice');
       }
@@ -169,15 +169,15 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return x.ti();
     },
     VariableDeclaration: function (x, y) {
-      var id = x.interval.contents;
+      var id = x.sourceString;
       if (id.match(idRegex)) {
         var oldNameSpace = nameSpace;
         nameSpace += id + '#';
         var rhsType = y.ti()[0];
         var lhsType = tokenTypes.getVal(id);
         if (!areCompatibleTypes(lhsType, rhsType))
-          throw new InferenceError(`cannot assign ${rhsType} to ${lhsType} (${this.interval.contents})`);
-        tokenTypes.setVal(x.interval.contents, rhsType);
+          throw new InferenceError(`cannot assign ${rhsType} to ${lhsType} (${this.sourceString})`);
+        tokenTypes.setVal(x.sourceString, rhsType);
         nameSpace = oldNameSpace;
       }
       return tokenTypes.getVal(id);
@@ -205,29 +205,29 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     PostfixExpression_postIncrement: function(a, b, c) {
       a.ti();
-      if (a.interval.contents.match(idRegex))
-        tokenTypes.setVal(a.interval.contents, 'int');
+      if (a.sourceString.match(idRegex))
+        tokenTypes.setVal(a.sourceString, 'int');
       return 'int';
     },
     PostfixExpression_postDecrement: function(a, b, c) {
       a.ti();
-      if (a.interval.contents.match(idRegex))
-        tokenTypes.setVal(a.interval.contents, 'int');
+      if (a.sourceString.match(idRegex))
+        tokenTypes.setVal(a.sourceString, 'int');
       return 'int';
     },
     AssignmentExpression_assignment: (x, y, z) => {
       var rhsType = z.ti();
-      var id = x.interval.contents;
+      var id = x.sourceString;
       if (id.match(idRegex)) {
         var lhsType = tokenTypes.getVal(id);
         if (!areCompatibleTypes(lhsType, rhsType))
-          throw new InferenceError(`cannot assign ${rhsType} (${z.interval.contents}) to ${lhsType} (${id})`);
-        tokenTypes.setVal(x.interval.contents, rhsType);
+          throw new InferenceError(`cannot assign ${rhsType} (${z.sourceString}) to ${lhsType} (${id})`);
+        tokenTypes.setVal(x.sourceString, rhsType);
       }
       return tokenTypes.getVal(id);
     },
     identifier: function (x) {
-      return tokenTypes.getVal(x.interval.contents);
+      return tokenTypes.getVal(x.sourceString);
     },
     IterationStatement: (a) => a.ti(),
     IterationStatement_doWhile: function(a, b, c, d, e, f, g) {
@@ -266,7 +266,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       lhs.ti();
       var type = expr.ti();
       // TODO(nate): actually infer the type, don't just do a lame guess
-      tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
+      tokenTypes.setVal(lhs.sourceString, type === 'dict' ? 'string' : 'int');
       stmt.ti();
       return 'void';
     },
@@ -274,12 +274,12 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       lhs.ti();
       var type = expr.ti();
       // TODO(nate): actually infer the type, don't just do a lame guess
-      tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
+      tokenTypes.setVal(lhs.sourceString, type === 'dict' ? 'string' : 'int');
       stmt.ti();
       return 'void';
     },
     CallExpression_memberExpExp: function(x, y) {
-      var funDec = tokenTypes.getObj(x.interval.contents);
+      var funDec = tokenTypes.getObj(x.sourceString);
       var funInv = { args: y.ti() };
       if (funDec.args.length !== funInv.args.length)
         throw new InferenceError('Argument lists must be same length');
@@ -289,7 +289,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
           tokenTypes.setVal(funDec.args[k].name, funInv.args[k]);
         }
       }
-      return tokenTypes.getVal(x.interval.contents);
+      return tokenTypes.getVal(x.sourceString);
     },
     Arguments: (a, b, c) => b.ti(),
     PrimaryExpression_parenExpr: (x, y, z) => y.ti(),
@@ -303,8 +303,8 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     PropertyAssignment_simple: function (a, b, c) {
       var type = c.ti();
-      tokenTypes.setVal(nameSpace + a.interval.contents, type);
-      tokenTypes.setVal(a.interval.contents, type);
+      tokenTypes.setVal(nameSpace + a.sourceString, type);
+      tokenTypes.setVal(a.sourceString, type);
       return type;
     },
   };

@@ -76,12 +76,12 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     UnaryExpression_unaryMinus:  (x, y) => -1 * y.rb(),
     UnaryExpression_unaryPlus:  (x, y) => y.rb(),
     UnaryExpression_lnot:  (x, y) => !y.rb(),
-    decimalLiteral_integerOnly: function (x, y) { return parseInt(this.interval.contents); },
-    decimalLiteral_bothParts: function (x, y, z, w) { return parseFloat(this.interval.contents); },
+    decimalLiteral_integerOnly: function (x, y) { return parseInt(this.sourceString); },
+    decimalLiteral_bothParts: function (x, y, z, w) { return parseFloat(this.sourceString); },
     Block: function (a, b, c) { b.rb(); return null; },
     FunctionDeclaration: function (a, id, c, params, e, f, myBody, h) {
-      var argList = params.interval.contents.split(/,\s*/);
-      var idName = id.interval.contents;
+      var argList = params.sourceString.split(/,\s*/);
+      var idName = id.sourceString;
       if (env[idName] !== undefined)
         throw new RuntimeError(`redefining ${idName} is not allowed`);
       env[idName] = {
@@ -114,7 +114,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     VariableDeclaration: function (x, y) {
       var val = y.rb();
       val = val[val.length-1];
-      env[x.interval.contents] = val; // override
+      env[x.sourceString] = val; // override
       return null; // doesn't matter
     },
     Initialiser: function (x, y) {
@@ -132,32 +132,32 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     ArrayLiteral: function (x, y, z) {
       return y.rb();
     },
-    stringLiteral: function (x, y, z) { return y.interval.contents; },
-    booleanLiteral: function (x) { return JSON.parse(this.interval.contents); },
+    stringLiteral: function (x, y, z) { return y.sourceString; },
+    booleanLiteral: function (x) { return JSON.parse(this.sourceString); },
     ReturnStatement: (x, y, z, w) => {
       throw { val: z.rb()[0], };
     },
     PostfixExpression_postIncrement: function(a, b, c) {
-      return env[a.interval.contents]++;
+      return env[a.sourceString]++;
     },
     PostfixExpression_postDecrement: function(a, b, c) {
-      return env[a.interval.contents]--;
+      return env[a.sourceString]--;
     },
     UnaryExpression_preIncrement: function(a, b) {
-      return ++env[b.interval.contents];
+      return ++env[b.sourceString];
     },
     UnaryExpression_preDecrement: function(a, b) {
-      return --env[b.interval.contents];
+      return --env[b.sourceString];
     },
     AssignmentExpression_assignment: (x, y, z) => {
       var val = z.rb();
-      env[x.interval.contents] = val; // override
+      env[x.sourceString] = val; // override
       return cast(x.ti(), val);
     },
     identifier: function (x) {
-      var ret = env[x.interval.contents];
+      var ret = env[x.sourceString];
       if (ret === undefined)
-        throw new RuntimeError(`${x.interval.contents} is an undefined identifier`);
+        throw new RuntimeError(`${x.sourceString} is an undefined identifier`);
       var type = this.ti();
       return cast(type, ret);
     },
@@ -191,7 +191,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       // TODO(nate): fix
       lhs.rb();
       var type = expr.rb();
-      tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
+      tokenTypes.setVal(lhs.sourceString, type === 'dict' ? 'string' : 'int');
       stmt.rb();
       return null;
     },
@@ -199,13 +199,13 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       // TODO(nate): fix
       lhs.rb();
       var type = expr.rb();
-      tokenTypes.setVal(lhs.interval.contents, type === 'dict' ? 'string' : 'int');
+      tokenTypes.setVal(lhs.sourceString, type === 'dict' ? 'string' : 'int');
       stmt.rb();
       return null;
     },
     CallExpression_memberExpExp: function(x, y) {
       // TODO(nate): fix this line to use .rb()
-      var funDecl = env[x.interval.contents];
+      var funDecl = env[x.sourceString];
       var ret;
       var funInv  = { args: y.rb() };
       if (funDecl) {
@@ -216,7 +216,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
         }
         ret = funDecl.body.rb(); // execute it with the new environment
         env = oldEnv;
-      } else if ((funDecl = builtins[x.interval.contents]) !== undefined) {
+      } else if ((funDecl = builtins[x.sourceString]) !== undefined) {
         ret = funDecl(...funInv.args);
       } else {
         throw new RuntimeError('undefined function');
@@ -235,8 +235,8 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     Arguments: (a, b, c) => b.rb(),
     MemberExpression_propRefExp: (a, b, c) => {
       var that = a.rb();
-      if (that[c.interval.contents] !== undefined) {
-        return that[c.interval.contents];
+      if (that[c.sourceString] !== undefined) {
+        return that[c.sourceString];
       } else {
         throw new RuntimeError('builtin properties not yet supported');
       }
@@ -260,7 +260,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     PropertyAssignment_simple: function (a, b, c) {
       return {
-        key: a.interval.contents,
+        key: a.sourceString,
         val: c.rb(),
       };
     },
