@@ -42,7 +42,8 @@ function doTest(expr, type, val, setup) {
     assert.strictEqual(s(m).rb(), val);
 }
 
-describe('rainbows', () => {
+describe('rainbows', function () {
+  this.timeout(3000);
   before(() => {
     builtins.print = function(...args) {
       logOutput = logOutput.concat(args);
