@@ -1,3 +1,17 @@
+'use strict';
+
+/*jshint unused:false*/
+
+function _toConsumableArray(arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+      arr2[i] = arr[i];
+    }return arr2;
+  } else {
+    return Array.from(arr);
+  }
+}
+
 /* jshint unused: false */
 /* jshint evil: true */
 var rbInterp;
@@ -11,25 +25,17 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   function RuntimeError(message) {
     this.name = 'RuntimeError';
     this.message = message || '';
-    this.stack = (new Error()).stack;
+    this.stack = new Error().stack;
   }
   RuntimeError.prototype = Object.create(Error.prototype);
   RuntimeError.prototype.constructor = RuntimeError;
 
   var env;
   function cast(type, value) {
-    if (type === 'string')
-      return value.toString();
-    else if (type === 'int')
-      return parseInt(value);
-    else if (type === 'float')
-      return parseFloat(value);
-    else
-      return value;
+    if (type === 'string') return value.toString();else if (type === 'int') return parseInt(value);else if (type === 'float') return parseFloat(value);else return value;
   }
   function truthy(cond) {
-    if (typeof cond !== 'boolean')
-      throw new RuntimeError('Condition must be of type `bool`');
+    if (typeof cond !== 'boolean') throw new RuntimeError('Condition must be of type `bool`');
     return cond;
   }
   function arithHelper(x, y) {
@@ -38,55 +44,93 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     if (a === 'dict' || b === 'dict') throw new RuntimeError('cannot add dicts');
     if (a === 'list' || b === 'list') throw new RuntimeError('cannot add lists');
     var ret;
-    ['string', 'float', 'int'].forEach(x => {
+    ['string', 'float', 'int'].forEach(function (x) {
       if (ret) return;
-      if (a === x || b === x)
-        ret = x;
+      if (a === x || b === x) ret = x;
     });
     return ret || 'unknown';
   }
   var idRegex = /[a-zA-Z_][a-zA-Z0-9_]*/;
   rbInterp = {
-    Program: function(x, y) {
+    Program: function (x, y) {
       env = {}; // clear it out
-      var lines = y.rb(); return lines[lines.length-1];
+      var lines = y.rb();return lines[lines.length - 1];
     },
-    SourceElement: function(x) { return x.rb(); },
+    SourceElement: function (x) {
+      return x.rb();
+    },
     ExpressionStatement: function (x, y) {
       return x.rb();
     },
-    Expression: function (x) { return x.rb(); },
-    EqualityExpression_equal: (x, y, z) => x.rb() === z.rb(),
-    EqualityExpression_notEqual: (x, y, z) => x.rb() !== z.rb(),
-    EqualityExpression_eq: (x, y, z) => x.rb() === z.rb(),
-    EqualityExpression_notEq: (x, y, z) => x.rb() !== z.rb(),
-    RelationalExpression_lt: (a, b, c) => a.rb() < c.rb(),
-    RelationalExpression_gt: (a, b, c) => a.rb() > c.rb(),
-    RelationalExpression_le: (a, b, c) => a.rb() <= c.rb(),
-    RelationalExpression_ge: (a, b, c) => a.rb() >= c.rb(),
-    AdditiveExpression_add: (x, _, y) => x.rb() + y.rb(),
-    AdditiveExpression_sub: (x, _, y) => x.rb() - y.rb(),
-    MultiplicativeExpression_mul: (x, _, y) => x.rb() * y.rb(),
+    Expression: function (x) {
+      return x.rb();
+    },
+    EqualityExpression_equal: function (x, y, z) {
+      return x.rb() === z.rb();
+    },
+    EqualityExpression_notEqual: function (x, y, z) {
+      return x.rb() !== z.rb();
+    },
+    EqualityExpression_eq: function (x, y, z) {
+      return x.rb() === z.rb();
+    },
+    EqualityExpression_notEq: function (x, y, z) {
+      return x.rb() !== z.rb();
+    },
+    RelationalExpression_lt: function (a, b, c) {
+      return a.rb() < c.rb();
+    },
+    RelationalExpression_gt: function (a, b, c) {
+      return a.rb() > c.rb();
+    },
+    RelationalExpression_le: function (a, b, c) {
+      return a.rb() <= c.rb();
+    },
+    RelationalExpression_ge: function (a, b, c) {
+      return a.rb() >= c.rb();
+    },
+    AdditiveExpression_add: function (x, _, y) {
+      return x.rb() + y.rb();
+    },
+    AdditiveExpression_sub: function (x, _, y) {
+      return x.rb() - y.rb();
+    },
+    MultiplicativeExpression_mul: function (x, _, y) {
+      return x.rb() * y.rb();
+    },
     MultiplicativeExpression_div: function (x, _, y) {
       var retType = arithHelper(x, y);
       var ret = x.rb() / y.rb();
       return retType === 'int' ? Math.floor(ret) : ret;
     },
-    MultiplicativeExpression_mod: (x, _, y) => x.rb() % y.rb(),
-    UnaryExpression_unaryMinus:  (x, y) => -1 * y.rb(),
-    UnaryExpression_unaryPlus:  (x, y) => y.rb(),
-    UnaryExpression_lnot:  (x, y) => !y.rb(),
-    decimalLiteral_integerOnly: function (x, y) { return parseInt(this.sourceString); },
-    decimalLiteral_bothParts: function (x, y, z, w) { return parseFloat(this.sourceString); },
-    Block: function (a, b, c) { b.rb(); return null; },
+    MultiplicativeExpression_mod: function (x, _, y) {
+      return x.rb() % y.rb();
+    },
+    UnaryExpression_unaryMinus: function (x, y) {
+      return -1 * y.rb();
+    },
+    UnaryExpression_unaryPlus: function (x, y) {
+      return y.rb();
+    },
+    UnaryExpression_lnot: function (x, y) {
+      return !y.rb();
+    },
+    decimalLiteral_integerOnly: function (x, y) {
+      return parseInt(this.sourceString);
+    },
+    decimalLiteral_bothParts: function (x, y, z, w) {
+      return parseFloat(this.sourceString);
+    },
+    Block: function (a, b, c) {
+      b.rb();return null;
+    },
     FunctionDeclaration: function (a, id, c, params, e, f, myBody, h) {
       var argList = params.sourceString.split(/,\s*/);
       var idName = id.sourceString;
-      if (env[idName] !== undefined)
-        throw new RuntimeError(`redefining ${idName} is not allowed`);
+      if (env[idName] !== undefined) throw new RuntimeError('redefining ' + idName + ' is not allowed');
       env[idName] = {
         args: argList,
-        body: myBody,
+        body: myBody
       };
       return null;
     },
@@ -94,8 +138,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       try {
         b.rb();
       } catch (e) {
-        if (!e.hasOwnProperty('val'))
-          throw e;
+        if (!e.hasOwnProperty('val')) throw e;
         return e.val;
       }
     },
@@ -113,7 +156,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     VariableDeclaration: function (x, y) {
       var val = y.rb();
-      val = val[val.length-1];
+      val = val[val.length - 1];
       env[x.sourceString] = val; // override
       return null; // doesn't matter
     },
@@ -121,73 +164,103 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       var type = y.rb();
       return type;
     },
-    EmptyListOf: () => [],
-    NonemptyListOf: (first, _sep, others) => [first.rb()].concat(others.rb()),
-    TryStatement: function (x) { return x.rb(); },
-    TryStatement_tryCatch: function (x, y, z) { y.rb(); z.rb(); return null; },
-    TryStatement_tryFinally: function (x, y, z) { y.rb(); z.rb(); return null; },
-    TryStatement_tryCatchFinally: function (x, y, z, w) { y.rb(); z.rb(); w.rb(); return null; },
-    Catch: function (a, b, c, d, e) { c.rb(); e.rb(); return null; },
-    Finally: function (a, b) { b.rb(); return null; },
+    EmptyListOf: function () {
+      return [];
+    },
+    NonemptyListOf: function (first, _sep, others) {
+      return [first.rb()].concat(others.rb());
+    },
+    TryStatement: function (x) {
+      return x.rb();
+    },
+    TryStatement_tryCatch: function (x, y, z) {
+      y.rb();z.rb();
+      return null;
+    },
+    TryStatement_tryFinally: function (x, y, z) {
+      y.rb();z.rb();
+      return null;
+    },
+    TryStatement_tryCatchFinally: function (x, y, z, w) {
+      y.rb();z.rb();w.rb();
+      return null;
+    },
+    Catch: function (a, b, c, d, e) {
+      c.rb();e.rb();
+      return null;
+    },
+    Finally: function (a, b) {
+      b.rb();
+      return null;
+    },
     ArrayLiteral: function (x, y, z) {
       return y.rb();
     },
-    stringLiteral: function (x, y, z) { return y.sourceString; },
-    booleanLiteral: function (x) { return JSON.parse(this.sourceString); },
-    ReturnStatement: (x, y, z, w) => {
-      throw { val: z.rb()[0], };
+    stringLiteral: function (x, y, z) {
+      return y.sourceString;
     },
-    PostfixExpression_postIncrement: function(a, b, c) {
+    booleanLiteral: function (x) {
+      return JSON.parse(this.sourceString);
+    },
+    ReturnStatement: function (x, y, z, w) {
+      throw { val: z.rb()[0] };
+    },
+    PostfixExpression_postIncrement: function (a, b, c) {
       return env[a.sourceString]++;
     },
-    PostfixExpression_postDecrement: function(a, b, c) {
+    PostfixExpression_postDecrement: function (a, b, c) {
       return env[a.sourceString]--;
     },
-    UnaryExpression_preIncrement: function(a, b) {
+    UnaryExpression_preIncrement: function (a, b) {
       return ++env[b.sourceString];
     },
-    UnaryExpression_preDecrement: function(a, b) {
+    UnaryExpression_preDecrement: function (a, b) {
       return --env[b.sourceString];
     },
-    AssignmentExpression_assignment: (x, y, z) => {
+    AssignmentExpression_assignment: function (x, y, z) {
       var val = z.rb();
       env[x.sourceString] = val; // override
       return cast(x.ti(), val);
     },
     identifier: function (x) {
       var ret = env[x.sourceString];
-      if (ret === undefined)
-        throw new RuntimeError(`${x.sourceString} is an undefined identifier`);
+      if (ret === undefined) throw new RuntimeError(x.sourceString + ' is an undefined identifier');
       var type = this.ti();
       return cast(type, ret);
     },
-    IterationStatement: (a) => a.rb(),
-    IterationStatement_doWhile: function(a, b, c, d, e, f, g) {
-      do b.rb(); while (truthy(e.rb()));
+    IterationStatement: function (a) {
+      return a.rb();
+    },
+    IterationStatement_doWhile: function (a, b, c, d, e, f, g) {
+      do {
+        b.rb();
+      } while (truthy(e.rb()));
       return null;
     },
-    _terminal: () => null,
-    IterationStatement_whileDo: function(a, b, c, d, e) {
+    _terminal: function () {
+      return null;
+    },
+    IterationStatement_whileDo: function (a, b, c, d, e) {
       while (truthy(c.rb())) {
         e.rb();
       }
       return null;
     },
-    IterationStatement_for3: function(a, b, c, d, e, f, g, h, i) {
+    IterationStatement_for3: function (a, b, c, d, e, f, g, h, i) {
       // TODO(nate): fix
       for (c.rb(); truthy(e.rb()[0]); g.rb()) {
         i.rb();
       }
       return null;
     },
-    IterationStatement_for3var: function(a, b, _var, c, d, e, f, g, h, i) {
+    IterationStatement_for3var: function (a, b, _var, c, d, e, f, g, h, i) {
       // TODO(nate): fix
       for (c.rb(); truthy(e.rb()[0]); g.rb()) {
         i.rb();
       }
       return null;
     },
-    IterationStatement_forIn: function(a, b, lhs, c, expr, d, stmt) {
+    IterationStatement_forIn: function (a, b, lhs, c, expr, d, stmt) {
       // TODO(nate): fix
       lhs.rb();
       var type = expr.rb();
@@ -195,7 +268,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       stmt.rb();
       return null;
     },
-    IterationStatement_forInVar: function(a, b, _var, lhs, c, expr, d, stmt) {
+    IterationStatement_forInVar: function (a, b, _var, lhs, c, expr, d, stmt) {
       // TODO(nate): fix
       lhs.rb();
       var type = expr.rb();
@@ -203,11 +276,11 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       stmt.rb();
       return null;
     },
-    CallExpression_memberExpExp: function(x, y) {
+    CallExpression_memberExpExp: function (x, y) {
       // TODO(nate): fix this line to use .rb()
       var funDecl = env[x.sourceString];
       var ret;
-      var funInv  = { args: y.rb() };
+      var funInv = { args: y.rb() };
       if (funDecl) {
         var oldEnv = env;
         env = Object.create(oldEnv);
@@ -217,23 +290,18 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
         ret = funDecl.body.rb(); // execute it with the new environment
         env = oldEnv;
       } else if ((funDecl = builtins[x.sourceString]) !== undefined) {
-        ret = funDecl(...funInv.args);
+        ret = funDecl.apply(undefined, _toConsumableArray(funInv.args));
       } else {
         throw new RuntimeError('undefined function');
       }
 
       var type = x.ti();
-      if (type === 'string')
-        return ret.toString();
-      else if (type === 'int')
-        return parseInt(ret);
-      else if (type === 'float')
-        return parseFloat(ret);
-      else
-        return ret;
+      if (type === 'string') return ret.toString();else if (type === 'int') return parseInt(ret);else if (type === 'float') return parseFloat(ret);else return ret;
     },
-    Arguments: (a, b, c) => b.rb(),
-    MemberExpression_propRefExp: (a, b, c) => {
+    Arguments: function (a, b, c) {
+      return b.rb();
+    },
+    MemberExpression_propRefExp: function (a, b, c) {
       var that = a.rb();
       if (that[c.sourceString] !== undefined) {
         return that[c.sourceString];
@@ -241,7 +309,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
         throw new RuntimeError('builtin properties not yet supported');
       }
     },
-    MemberExpression_arrayRefExp: (a, b, c, d) => {
+    MemberExpression_arrayRefExp: function (a, b, c, d) {
       var that = a.rb();
       var idx = c.rb();
       if (that[idx] !== undefined) {
@@ -250,10 +318,12 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
         throw new RuntimeError('builtin properties not yet supported');
       }
     },
-    PrimaryExpression_parenExpr: (x, y, z) => y.rb(),
-    ObjectLiteral_noTrailingComma: (a, b, c) => {
+    PrimaryExpression_parenExpr: function (x, y, z) {
+      return y.rb();
+    },
+    ObjectLiteral_noTrailingComma: function (a, b, c) {
       var ret = {};
-      b.rb().forEach((x) => {
+      b.rb().forEach(function (x) {
         ret[x.key] = x.val;
       });
       return ret;
@@ -261,19 +331,20 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     PropertyAssignment_simple: function (a, b, c) {
       return {
         key: a.sourceString,
-        val: c.rb(),
+        val: c.rb()
       };
     },
-    ObjectLiteral_trailingComma: (a, b, c, d) => {
+    ObjectLiteral_trailingComma: function (a, b, c, d) {
       var ret = {};
-      b.rb().forEach((x) => {
+      b.rb().forEach(function (x) {
         ret[x.key] = x.val;
       });
       return ret;
-    },
+    }
   };
 })();
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   module.exports.rbInterp = rbInterp;
 }
+

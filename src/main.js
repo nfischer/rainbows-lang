@@ -1,3 +1,5 @@
+'use strict';
+
 /* globals $, window, tokenTypes, document, CodeMirror, Blob, ohm, typeInference, tinycolor, rbExamples, getComputedStyle, rbInterp, URL */
 /* jshint unused: false */
 var editor;
@@ -44,14 +46,12 @@ function domNodeToLineNumber(node) {
   // go up until we get to ".CodeMirror-line"'s parent and look at the text()
   // of the firstChild
   var x = node.closest('.CodeMirror-line');
-  if (!x)
-    return null;
+  if (!x) return null;
   try {
     x.parent().children('.CodeMirror-gutter-wrapper').each(function () {
       var ret = parseInt($(this).text());
-      if (ret.toString() === $(this).text())
-        throw ret;
-      });
+      if (ret.toString() === $(this).text()) throw ret;
+    });
   } catch (e) {
     return e;
   }
@@ -59,7 +59,7 @@ function domNodeToLineNumber(node) {
 }
 
 function lineNumberToDomNode(num) {
-  var line = $('#rainbows-editor .CodeMirror-gutter-wrapper').filter(function(x, y) {
+  var line = $('#rainbows-editor .CodeMirror-gutter-wrapper').filter(function (x, y) {
     return $(y).text() == num;
   }).parent().children().next().children();
 
@@ -77,7 +77,7 @@ function underlineArguments(funName, line, argTypes) {
   var k = -1;
   var level = 0;
   if (!argTypes) return;
-  line.contents().each(function(a, b) {
+  line.contents().each(function (a, b) {
     var node = $(b);
     var name = node.text();
     if (k < 0 && name === funName) {
@@ -88,34 +88,42 @@ function underlineArguments(funName, line, argTypes) {
       k++;
     } else if (k >= 0 && name.match(/[{([]\s*/)) {
       level++;
-      addType(node, argTypes[k], { underline: true});
+      addType(node, argTypes[k], { underline: true });
     } else if (name.match(/[})\[]\s*/)) {
       level--;
-      addType(node, argTypes[k], { underline: true});
+      addType(node, argTypes[k], { underline: true });
     } else if (k >= 0) {
-      addType(node, argTypes[k], { underline: true});
+      addType(node, argTypes[k], { underline: true });
     }
   });
 }
 
 function underlineReturn(type, line) {
-  line.contents().each(function(a, b) {
+  line.contents().each(function (a, b) {
     var node = $(b);
     var name = node.text();
     if (name === 'return') {
-      addType(node, type, { underline: true});
+      addType(node, type, { underline: true });
     }
   });
 }
 
 function appendTypeClass(originalClassName) {
-  $('#rainbows-editor ' + originalClassName).each(function() {
+  $('#rainbows-editor ' + originalClassName).each(function () {
     var output = $(this).text();
     var literalsMap = {
-      '.cm-keyword' : () => 'keyword',
-      '.cm-atom'    : () => 'bool',
-      '.cm-string'  : () => 'string',
-      '.cm-number'  : (x) => x.match(/\./) ? 'float' : 'int',
+      '.cm-keyword': function () {
+        return 'keyword';
+      },
+      '.cm-atom': function () {
+        return 'bool';
+      },
+      '.cm-string': function () {
+        return 'string';
+      },
+      '.cm-number': function (x) {
+        return x.match(/\./) ? 'float' : 'int';
+      }
     };
     var obj = tokenTypes.getObj(output);
     if (literalsMap[originalClassName]) {
@@ -161,8 +169,7 @@ function main() {
   var lineNum = 0;
   editor.eachLine(function (lineHandle) {
     lineNum++; // 1, 2, 3, ... (not 0)
-    if (!funName)
-      return;
+    if (!funName) return;
     var contents = editor.getLine(editor.getLineNumber(lineHandle));
     var match1 = contents.match(/^\s*function\s+([a-zA-Z0-9_]+)\s*/);
     var match2 = contents.match(/^\s*return\s+(.*)\s*;/);
@@ -170,13 +177,14 @@ function main() {
       funName = [match1[1]].concat(funName);
       return;
     } else if (match2) {
-      underlineReturn(tokenTypes.getVal(funName[0]), lineNumberToDomNode(editor.getLineNumber(lineHandle)+1));
+      underlineReturn(tokenTypes.getVal(funName[0]), lineNumberToDomNode(editor.getLineNumber(lineHandle) + 1));
     }
   });
 
   // now interpret it
-  if (resultType) { // this is null if type inference fails
-    setTimeout(function() {
+  if (resultType) {
+    // this is null if type inference fails
+    setTimeout(function () {
       var val = interp();
       var result;
       if (val === null || val === undefined)
@@ -190,7 +198,7 @@ function main() {
   }
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
   var code = $('.codemirror-textarea')[0];
   editor = CodeMirror.fromTextArea(code, {
     mode: 'rainbows',
@@ -203,7 +211,7 @@ $(document).ready(function() {
     lineNumbers: true
   });
 
-  editor.on('change', function() {
+  editor.on('change', function () {
     setTimeout(main, 30);
   });
 
@@ -211,22 +219,23 @@ $(document).ready(function() {
   $(document).ready(function () {
     $('.color-changer > #msg').html(sliderMsg);
   });
-  var reservedWords = `
-      abstract else instanceof super
-      boolean enum int switch
-      break export interface synchronized
-      byte extends let this
-      case false long throw
-      catch final native throws
-      char finally new transient
-      class float null true
-      const for package try
-      continue function private typeof
-      debugger goto protected var
-      default if public void
-      delete implements return volatile
-      do import short while
-      double in static with`.split(/[\s\n]+/);
+  var reservedWords = (
+      'abstract else instanceof super\n' +
+      'boolean enum int switch\n' +
+      'break export interface synchronized\n' +
+      'byte extends let this\n' +
+      'case false long throw\n' +
+      'catch final native throws\n' +
+      'char finally new transient\n' +
+      'class float null true\n' +
+      'const for package try\n' +
+      'continue function private typeof\n' +
+      'debugger goto protected var\n' +
+      'default if public void\n' +
+      'delete implements return volatile\n' +
+      'do import short while\n' +
+      'double in static with\n')
+    .split(/[\s\n]+/);
 
   function colorWord() {
     // we selected a new token, so let's show that
@@ -242,7 +251,7 @@ $(document).ready(function() {
       $('#slider-1').slider('option', 'disabled', false);
       $('#cur-token').text(newToken);
       window.currentToken = newToken;
-      updateSlider(null, { value: $('#slider-1').slider('value')} );
+      updateSlider(null, { value: $('#slider-1').slider('value') });
     } else if (oldToken && !newToken) {
       // This isn't a valid token, so don't update it
       $('.color-changer > #msg').html(sliderMsg);
@@ -251,7 +260,7 @@ $(document).ready(function() {
     } else if (newToken) {
       window.currentToken = newToken;
       $('#cur-token').text(newToken);
-      updateSlider(null, { value: $('#slider-1').slider('value')} );
+      updateSlider(null, { value: $('#slider-1').slider('value') });
     }
   }
 
@@ -264,15 +273,11 @@ $(document).ready(function() {
 
 var s;
 var grammars = {};
-$(document).ready(function() {
+$(document).ready(function () {
   grammars.Rainbows = ohm.grammarFromScriptElement();
   s = grammars.Rainbows.createSemantics();
-  s.addOperation(
-      'ti()',
-      typeInference);
-  s.addOperation(
-      'rb()',
-      rbInterp);
+  s.addOperation('ti()', typeInference);
+  s.addOperation('rb()', rbInterp);
 });
 
 function interp() {
@@ -302,7 +307,7 @@ function getCssVariable(type) {
 }
 
 function setCssVariable(type, newColor) {
-  document.documentElement.style.setProperty(`--${type}-color`, newColor);
+  document.documentElement.style.setProperty('--' + type + '-color', newColor);
 }
 
 // change `type` to now be colored as `newColor`, regardless of before
@@ -312,11 +317,10 @@ function changeTypeColor(newColor) {
   var newHue = newColor.hsv[0];
   var oldHue = tinycolor(getCssVariable(type)).toHsl().h;
   var hueDiff = newHue - oldHue;
-  setCssVariable(type, '#'+newColor);
+  setCssVariable(type, '#' + newColor);
   if (evenMode) {
     rbTypeList.forEach(function (tName) {
-      if (tName === 'inferred type' || tName === type)
-        return;
+      if (tName === 'inferred type' || tName === type) return;
       // spin every other color's hue to compensate
       setCssVariable(tName,
           tinycolor(getCssVariable(tName)).spin(hueDiff).toHslString());
@@ -324,11 +328,10 @@ function changeTypeColor(newColor) {
   }
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
   var node = document.getElementById('typeList');
   rbTypeList.forEach(function (type) {
-    if (type === DEFAULT_TYPE)
-      return;
+    if (type === DEFAULT_TYPE) return;
     var d = document.createElement('div');
     d.innerHTML = type;
     d.setAttribute('onclick', "messUpButton('" + type + "')");
@@ -343,17 +346,17 @@ function messUpButton(type) {
   document.getElementById('color-btn').jscolor.fromString(col);
 }
 
-var editorError = (function() {
+var editorError = (function () {
   var d = document.createElement('div');
   var node = $(d).addClass('playground-error-msg');
   var widget;
   return {
-    show: (msg) => {
+    show: function (msg) {
       node.text(msg);
       if (widget) widget.clear();
-      widget = editor.addLineWidget(editor.lineCount()-1, d);
+      widget = editor.addLineWidget(editor.lineCount() - 1, d);
     },
-    hide: () => {
+    hide: function () {
       node.text('');
       if (widget) widget.clear();
     }
@@ -361,18 +364,18 @@ var editorError = (function() {
 })();
 
 // TODO(nate): get this div to display
-outputError = (function() {
+outputError = (function () {
   var d = document.createElement('div');
   var node = $(d).addClass('playground-error-msg');
   var widget;
   return {
-    show: (msg) => {
+    show: function (msg) {
       node.text(msg);
       console.error(msg);
       if (widget) widget.clear();
       widget = jscode.addLineWidget(1, d);
     },
-    hide: () => {
+    hide: function () {
       node.text('');
       if (widget) widget.clear();
     }
@@ -399,17 +402,17 @@ function getJsType(expr) {
   }
   //} else {
   //  var timeout;
-  //  editor.on('keyHandled', function() {
+  //  editor.on('keyHandled', function () {
   //    if(timeout) {
   //      clearTimeout(timeout);
   //      timeout = null;
-  //      setTimeout(function() {
+  //      setTimeout(function () {
   //        if (widget) widget.clear();
   //        widget = null;
   //      }, 200);
   //    }
   //  });
-  //  timeout = setTimeout(function() {
+  //  timeout = setTimeout(function () {
   //    if (m.message) {
   //      try {
   //        var lineNum = m.message.match(/Line: (\d+),/)[1];
@@ -423,7 +426,7 @@ function getJsType(expr) {
   //  }, 30);
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
   // Load the first example
   tokenTypes.refresh(true);
   editor.setValue(rbExamples[0].code);
@@ -433,11 +436,11 @@ $(document).ready(function() {
   var row = table.insertRow(1);
   var mydiv = document.createElement('div');
   row.appendChild(mydiv);
-  rbExamples.forEach(function(ex) {
+  rbExamples.forEach(function (ex) {
     var button = document.createElement('button');
     button.appendChild(document.createTextNode(ex.name));
     mydiv.appendChild(button);
-    $(button).click(function() {
+    $(button).click(function () {
       tokenTypes.refresh(true);
       editor.setValue(ex.code);
     });
@@ -445,10 +448,12 @@ $(document).ready(function() {
 });
 $(document).ready(function () {
   var matchingGrey = $('.cm-s-default');
-  var rbColorList = rbTypeList.map(x => x === DEFAULT_TYPE ? matchingGrey : $('.rb-type-' + x));
+  var rbColorList = rbTypeList.map(function (x) {
+    return x === DEFAULT_TYPE ? matchingGrey : $('.rb-type-' + x);
+  });
   var node = {}; // hack: use an object here, because of scoping issues
   /* function updateSlider */
-  updateSlider = function (event, ui) {
+  updateSlider = function updateSlider(event, ui) {
     var myType = rbTypeList[ui.value];
     node.value.css('background', rbColorList[ui.value].css('color'));
 
@@ -482,14 +487,15 @@ function saveFile() {
   var file;
 
   // download the text
-  file = new Blob([editor.getValue()], {type: 'text'});
+  file = new Blob([editor.getValue()], { type: 'text' });
   a.href = URL.createObjectURL(file);
   a.download = 'sample.rain';
   a.click();
 
   // download the type info
-  file = new Blob([tokenTypes.serialize()], {type: 'text/json'});
+  file = new Blob([tokenTypes.serialize()], { type: 'text/json' });
   a.href = URL.createObjectURL(file);
   a.download = 'sample.raint';
   a.click();
 }
+

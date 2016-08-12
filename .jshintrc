@@ -1,6 +1,6 @@
 {
   "loopfunc": true,
-  "esversion": 6,
+  "esversion": 5,
   "sub": true,
   "undef": true,
   "unused": true,
