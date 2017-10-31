@@ -9,7 +9,7 @@ var path = require('path');
 var contents = fs.readFileSync(path.resolve(__dirname, '../src/rainbows.ohm'));
 var Rainbows = ohm.grammar(contents);
 
-var s = Rainbows.semantics();
+var s = Rainbows.createSemantics();
 s.addOperation(
   'ti()',
   inference.typeInference);
