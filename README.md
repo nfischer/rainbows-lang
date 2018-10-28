@@ -1,7 +1,7 @@
 # Rainbows :rainbow:
 A prototype of the Rainbows programming language
 
-[![Travis](https://img.shields.io/travis/nfischer/rainbows-lang.svg?style=flat-square)](https://travis-ci.org/nfischer/rainbows-lang)
+[![Travis](https://img.shields.io/travis/nfischer/rainbows-lang/master.svg?style=flat-square)](https://travis-ci.org/nfischer/rainbows-lang)
 [![Codecov](https://img.shields.io/codecov/c/github/nfischer/rainbows-lang/master.svg?style=flat-square&label=coverage)](https://codecov.io/gh/nfischer/rainbows-lang)
 [![Try online](https://img.shields.io/badge/try_it-online!-yellow.svg?style=flat-square)](https://nfischer.github.io/rainbows-lang/)
 
