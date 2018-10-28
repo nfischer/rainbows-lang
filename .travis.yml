@@ -6,3 +6,5 @@ os: linux
 
 script:
   - npm test
+after_success:
+  - npm run codecov -- -f coverage/lcov.info
