@@ -8,7 +8,18 @@ require('shelljs/global');
 // Note: to get debugging output, use test.log()
 
 var assert = require('assert');
-var ohm = require('../lib/ohm/dist/ohm');
+/* istanbul ignore next */
+try {
+  var ohm = require('../lib/ohm/dist/ohm');
+} catch (e) {
+  console.error(e);
+  console.error();
+  console.error();
+  console.error('******************************************');
+  console.error('* Make sure you download git submodules! *');
+  console.error('******************************************');
+  process.exit(1);
+}
 var fs = require('fs');
 var path = require('path');
 var inference = require('../src/inference');
