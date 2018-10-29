@@ -5,6 +5,10 @@ var tokenTypes = require('../src/types');
 var rbInstance = require('./rbInstance');
 var fs = require('fs');
 
+if (require.main !== module) {
+  throw new Error('This file should not be required');
+}
+
 var fileName = process.argv[2];
 if (!fileName) {
   console.error('Must specify a file');

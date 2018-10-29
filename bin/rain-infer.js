@@ -4,9 +4,13 @@ var tokenTypes = require('../src/types');
 var rbInstance = require('./rbInstance');
 var fs = require('fs');
 
+if (require.main !== module) {
+  throw new Error('This file should not be required');
+}
+
 var fileName = process.argv[2];
 if (!fileName) {
-  console.error('Must specify a file');
+  console.error('Must specify a *.rain file');
   shell.exit(1);
 }
 
@@ -14,7 +18,20 @@ if (!fileName) {
 var script = shell.cat(fileName).toString();
 
 // Load in the specified types
-tokenTypes.load(JSON.parse(fs.readFileSync(fileName + 't'))); // load JSON
+var typeFileName = fileName + 't';
+try {
+  var typeContent = fs.readFileSync(typeFileName);
+} catch (e) {
+  console.error('Expected ' + typeFileName + ' to exist');
+  throw e;
+}
+try {
+  var typeJson = JSON.parse(typeContent);
+} catch (e) {
+  console.error('Expected ' + typeFileName + ' to be unformatted JSON');
+  throw e;
+}
+tokenTypes.load(typeJson); // load JSON
 tokenTypes.refresh(); // keep `.selected` values
 
 // Parse and infer types

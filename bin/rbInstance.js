@@ -1,9 +1,12 @@
-#!/usr/bin/env node
 var ohm = require('../lib/ohm/dist/ohm');
 var inference = require('../src/inference');
 var interp = require('../src/interp');
 var fs = require('fs');
 var path = require('path');
+
+if (require.main === module) {
+  throw new Error('This file should only be required, not itself executed');
+}
 
 // Instantiate the Ohm grammar for Rainbows
 var contents = fs.readFileSync(path.resolve(__dirname, '../src/rainbows.ohm'));
