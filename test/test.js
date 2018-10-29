@@ -29,8 +29,7 @@ s.addOperation('rb()', interp.rbInterp);
 
 var logOutput;
 
-function doTest(expr, type, val, setup) {
-  if (setup) setup();
+function doTest(expr, type, val) {
   var m = es5.match(expr);
   assert.ok(m.succeeded());
   assert.strictEqual(s(m).ti(), type);
