@@ -15,6 +15,11 @@
     "posttest": "npm run lint",
     "deploy": "deploy-gh"
   },
+  "nyc": {
+    "exclude": [
+      "lib/"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nfischer/rainbows-lang.git"
