@@ -10,7 +10,7 @@ require('shelljs/global');
 var assert = require('assert');
 /* istanbul ignore next */
 try {
-  var ohm = require('../lib/ohm/dist/ohm');
+  var ohm = require('../src/ohm');
 } catch (e) {
   console.error(e);
   console.error();
