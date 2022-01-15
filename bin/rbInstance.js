@@ -1,4 +1,4 @@
-var ohm = require('../lib/ohm/dist/ohm');
+var ohm = require('../src/ohm');
 var inference = require('../src/inference');
 var interp = require('../src/interp');
 var fs = require('fs');
