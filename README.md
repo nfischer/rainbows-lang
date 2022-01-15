@@ -1,7 +1,7 @@
 # Rainbows :rainbow:
 A prototype of the Rainbows programming language
 
-[![Travis](https://img.shields.io/travis/nfischer/rainbows-lang/main.svg?style=flat-square)](https://travis-ci.org/nfischer/rainbows-lang)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2F%2F%2Fbadge%3Fref%3Dmain&style=flat-square)](https://actions-badge.atrox.dev///goto?ref=main)
 [![Codecov](https://img.shields.io/codecov/c/github/nfischer/rainbows-lang/main.svg?style=flat-square&label=coverage)](https://codecov.io/gh/nfischer/rainbows-lang)
 [![Try online](https://img.shields.io/badge/try_it-online!-yellow.svg?style=flat-square)](https://nfischer.github.io/rainbows-lang/)
 
@@ -12,14 +12,14 @@ To learn about the motivation, check out the original [one page design
 doc](doc/OnePager3v2.pdf).
 
 Try out the [online live coding
-environment](https://nfischer.github.io/rainbows-lang/ ) and let me know what you
+environment](https://nfischer.github.io/rainbows-lang/) and let me know what you
 think!
 
 ## Browser Compatibility
 
 I'm taking advantage of [css
-variables](https://developers.google.com/web/updates/2016/02/css-variables-why-should-you-care?hl=en)
-, so your browser will need to support these. This should be fine for Chrome
+variables](https://developers.google.com/web/updates/2016/02/css-variables-why-should-you-care?hl=en),
+so your browser will need to support these. This should be fine for Chrome
 v49+, Firefox 29+, and Safari 9.1+. Also, there is no mobile support as of yet.
 
 If this project is not compatible with these browsers, please let me know. If
