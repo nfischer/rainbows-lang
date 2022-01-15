@@ -1,6 +1,6 @@
 /*
   This grammar was based on the Ohm grammar for ES5 found at
-  https://github.com/cdglabs/ohm/blob/master/examples/ecmascript/es5.ohm
+  https://github.com/harc/ohm/blob/master/examples/ecmascript/src/es5.ohm
 
   Here's the license in that file:
 */
