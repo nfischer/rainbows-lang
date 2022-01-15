@@ -1,7 +1,7 @@
 # Rainbows :rainbow:
 A prototype of the Rainbows programming language
 
-[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2F%2F%2Fbadge%3Fref%3Dmain&style=flat-square)](https://actions-badge.atrox.dev///goto?ref=main)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fnfischer%2Frainbows-lang%2Fbadge%3Fref%3Dmain&style=flat-square)](https://actions-badge.atrox.dev/nfischer/rainbows-lang/goto?ref=main)
 [![Codecov](https://img.shields.io/codecov/c/github/nfischer/rainbows-lang/main.svg?style=flat-square&label=coverage)](https://codecov.io/gh/nfischer/rainbows-lang)
 [![Try online](https://img.shields.io/badge/try_it-online!-yellow.svg?style=flat-square)](https://nfischer.github.io/rainbows-lang/)
 
