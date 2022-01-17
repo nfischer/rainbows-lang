@@ -8,7 +8,6 @@
     "rain-interp.js": "bin/rain-interp.js"
   },
   "scripts": {
-    "codecov": "codecov",
     "start": "http-server -o",
     "test": "nyc --reporter=text --reporter=lcov mocha",
     "lint": "jshint src test bin",
