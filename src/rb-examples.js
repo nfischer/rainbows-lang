@@ -1,7 +1,8 @@
-
 /* jshint unused: false */
+/* eslint no-unused-vars: 0 */
 var rbExamples = [
-{ name: 'Fibonacci',
+{
+  name: 'Fibonacci',
   code:
 '// Recursive fibonacci algorithm\n' +
 'function fib(n) {\n' +
@@ -68,7 +69,7 @@ var rbExamples = [
 '  }\n' +
 '}\n' +
 '\n' +
-"//getLength([\'h\', \'e\', \'l\', \'l\', \'o\']);\n" +
+'//getLength([\'h\', \'e\', \'l\', \'l\', \'o\']);\n' +
 'getLength("hello world");\n',
 },
 {

@@ -10,7 +10,7 @@
   "scripts": {
     "start": "http-server -o",
     "test": "nyc --reporter=text --reporter=lcov mocha",
-    "lint": "jshint src test bin",
+    "lint": "eslint .",
     "posttest": "npm run lint",
     "deploy": "deploy-gh"
   },
@@ -40,8 +40,10 @@
   },
   "devDependencies": {
     "deploy-gh": "^0.1.2",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.25.4",
     "http-server": "^13.1.0",
-    "jshint": "^2.13.3",
     "mocha": "^6.2.3",
     "nyc": "^14.1.1"
   },

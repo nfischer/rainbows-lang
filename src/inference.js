@@ -1,8 +1,10 @@
 'use strict';
 
+/* eslint no-unused-vars: 0, block-scoped-var: 0 */
 /* jshint unused: false */
 var typeInference;
 
+// In the browser, tokenTypes is defined by importing types.js via <script> tag.
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   // inside node
   var tokenTypes = require('./types');
@@ -26,10 +28,8 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     var ret;
     ['dict', 'list', 'bool'].forEach(function (x) {
       if (typeof ret === 'boolean') return;
-      if ((lhsType === x) && lhsType === rhsType)
-        ret = true;
-      else if (lhsType === x || rhsType === x)
-        ret = false;
+      if ((lhsType === x) && lhsType === rhsType) ret = true;
+      else if (lhsType === x || rhsType === x) ret = false;
     });
     if (typeof ret === 'boolean') return ret;
     if ((lhsType === 'int' || lhsType === 'float') && rhsType === 'string') return false;
@@ -41,9 +41,9 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     var opStr = op.sourceString;
     var ret;
     // most constrained types go first
-    ['dict', 'list', 'bool', 'string', 'float', 'int'].forEach(function (x) {
+    ['dict', 'list', 'bool', 'string', 'float', 'int'].forEach(function (type) {
       if (ret) return;
-      if (a === x || b === x) ret = x;
+      if (a === type || b === type) ret = type;
     });
     var opPairs = {
       '+': 'add',
@@ -55,18 +55,19 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     var errorObj = {};
     a = Object.assign({}, opPairs);
     a['+'] = null;
-    errorObj['string'] = a;
-    errorObj['dict'] = opPairs;
-    errorObj['list'] = opPairs;
-    errorObj['bool'] = opPairs;
-    if (errorObj[ret] && errorObj[ret][opStr])
-      throw new InferenceError('cannot ' + errorObj[ret][opStr] + ' ' + ret +' values');
+    errorObj.string = a;
+    errorObj.dict = opPairs;
+    errorObj.list = opPairs;
+    errorObj.bool = opPairs;
+    if (errorObj[ret] && errorObj[ret][opStr]) {
+      throw new InferenceError('cannot ' + errorObj[ret][opStr] + ' ' + ret + ' values');
+    }
     return ret || 'unknown';
   }
 
   typeInference = {
     Program: function (x, y) {
-      var lines = y.ti();return lines[lines.length - 1];
+      var lines = y.ti(); return lines[lines.length - 1];
     },
     SourceElement: function (x) {
       return x.ti();
@@ -162,8 +163,9 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
         if (argType === 'string') argName = argName.replace(/["']/g, '');
         name = a.sourceString + '#' + argName;
       } else if (thisType === 'string') {
-        if (argType !== 'int')
+        if (argType !== 'int') {
           throw new InferenceError('Cannot index with a non-integer');
+        }
         return 'string';
       } else if (thisType === 'list') {
         return 'unknown'; // TODO: fix this if possible
@@ -173,7 +175,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return tokenTypes.getVal(name);
     },
     Block: function (a, b, c) {
-      b.ti();return 'void';
+      b.ti(); return 'void';
     },
     FormalParameter: function (a) {
       var ret = tokenTypes.getObj(a.sourceString);
@@ -203,8 +205,9 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     IfStatement: function (a, b, cond, d, expr, f, elseCase) {
       var bool = cond.ti();
-      if (bool !== 'bool')
+      if (bool !== 'bool') {
         throw new InferenceError('Condition must be of type `bool`');
+      }
 
       expr.ti();
       elseCase.ti();
@@ -224,8 +227,9 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
         nameSpace += id + '#';
         var rhsType = y.ti()[0];
         var lhsType = tokenTypes.getVal(id);
-        if (!areCompatibleTypes(lhsType, rhsType))
+        if (!areCompatibleTypes(lhsType, rhsType)) {
           throw new InferenceError('cannot assign ' + rhsType + ' to ' + lhsType + ' (' + this.sourceString + ')');
+        }
         tokenTypes.setVal(x.sourceString, rhsType);
         nameSpace = oldNameSpace;
       }
@@ -244,19 +248,19 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return x.ti();
     },
     TryStatement_tryCatch: function (x, y, z) {
-      y.ti();z.ti();return 'void';
+      y.ti(); z.ti(); return 'void';
     },
     TryStatement_tryFinally: function (x, y, z) {
-      y.ti();z.ti();return 'void';
+      y.ti(); z.ti(); return 'void';
     },
     TryStatement_tryCatchFinally: function (x, y, z, w) {
-      y.ti();z.ti();w.ti();return 'void';
+      y.ti(); z.ti(); w.ti(); return 'void';
     },
     Catch: function (a, b, c, d, e) {
-      c.ti();e.ti();return 'void';
+      c.ti(); e.ti(); return 'void';
     },
     Finally: function (a, b) {
-      b.ti();return 'void';
+      b.ti(); return 'void';
     },
     ArrayLiteral: function (x, y, z) {
       return 'list';
@@ -276,14 +280,16 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     },
     PostfixExpression_postIncrement: function (a, b, c) {
       a.ti();
-      if (a.sourceString.match(idRegex))
+      if (a.sourceString.match(idRegex)) {
         tokenTypes.setVal(a.sourceString, 'int');
+      }
       return 'int';
     },
     PostfixExpression_postDecrement: function (a, b, c) {
       a.ti();
-      if (a.sourceString.match(idRegex))
+      if (a.sourceString.match(idRegex)) {
         tokenTypes.setVal(a.sourceString, 'int');
+      }
       return 'int';
     },
     AssignmentExpression_assignment: function (x, y, z) {
@@ -291,8 +297,9 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       var id = x.sourceString;
       if (id.match(idRegex)) {
         var lhsType = tokenTypes.getVal(id);
-        if (!areCompatibleTypes(lhsType, rhsType))
+        if (!areCompatibleTypes(lhsType, rhsType)) {
           throw new InferenceError('cannot assign ' + rhsType + ' (' + z.sourceString + ') to ' + lhsType + ' (' + id + ')');
+        }
         tokenTypes.setVal(x.sourceString, rhsType);
       }
       return tokenTypes.getVal(id);
@@ -306,14 +313,16 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     IterationStatement_doWhile: function (a, b, c, d, e, f, g) {
       b.ti();
       var bool = e.ti();
-      if (bool !== 'bool')
+      if (bool !== 'bool') {
         throw new InferenceError('Condition must be of type `bool`');
+      }
       return 'void';
     },
     IterationStatement_whileDo: function (a, b, c, d, e) {
       var bool = c.ti();
-      if (bool !== 'bool')
+      if (bool !== 'bool') {
         throw new InferenceError('Condition must be of type `bool`');
+      }
       e.ti();
       return 'void';
     },
@@ -322,8 +331,9 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       g.ti();
       i.ti();
       var bool = e.ti()[0];
-      if (bool !== 'bool')
+      if (bool !== 'bool') {
         throw new InferenceError('Condition must be of type `bool`');
+      }
       return 'void';
     },
     IterationStatement_for3var: function (a, b, _var, c, d, e, f, g, h, i) {
@@ -331,8 +341,9 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       g.ti();
       i.ti();
       var bool = e.ti()[0];
-      if (bool !== 'bool')
+      if (bool !== 'bool') {
         throw new InferenceError('Condition must be of type `bool`');
+      }
       return 'void';
     },
     IterationStatement_forIn: function (a, b, lhs, c, expr, d, stmt) {
@@ -354,8 +365,9 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     CallExpression_memberExpExp: function (x, y) {
       var funDec = tokenTypes.getObj(x.sourceString);
       var funInv = { args: y.ti() };
-      if (funDec.args.length !== funInv.args.length)
+      if (funDec.args.length !== funInv.args.length) {
         throw new InferenceError('Argument lists must be same length');
+      }
       for (var k = 0; k < funDec.args.length; k++) {
         var thisType = funDec.args[k].type;
         if (thisType === 'unknown') {
@@ -385,9 +397,8 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return type;
     },
   };
-})();
+}());
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   module.exports.typeInference = typeInference;
 }
-
