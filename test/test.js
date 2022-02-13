@@ -205,67 +205,56 @@ describe('rainbows', function () {
   });
   describe('while', function () {
     it('simple', function (done) {
-      doTest(
-      'var a = 0;\n' +
+      doTest('var a = 0;\n' +
       'while (a < 3)\n' +
       '  a++;\n' +
-      'a\n', 'int', 3
-      );
+      'a\n', 'int', 3);
       done();
     });
 
     it('two vars', function (done) {
-      doTest(
-      'var a = 0;\n' +
+      doTest('var a = 0;\n' +
       'var b = 5;\n' +
       'while (a < 3) {\n' +
       '  a++;\n' +
       '  b--;\n' +
       '}\n' +
-      'b\n', 'int', 5 - 3
-      );
+      'b\n', 'int', 5 - 3);
       done();
     });
   });
 
   it('dowhile', function (done) {
-    doTest(
-    'var a = 0;\n' +
+    doTest('var a = 0;\n' +
     'var b = 5;\n' +
     'do {\n' +
     '  a++;\n' +
     '  b--;\n' +
     '} while (a < 3);\n' +
-    'b\n', 'int', 5 - 3
-    );
+    'b\n', 'int', 5 - 3);
     done();
   });
 
   describe('if', function () {
     it('greater than', function (done) {
-      doTest(
-      'var a = 1;\n' +
+      doTest('var a = 1;\n' +
       'if (a > 0) {\n' +
       '  a++;\n' +
       '}\n' +
-      'a\n', 'int', 2
-      );
+      'a\n', 'int', 2);
       done();
     });
     it('equal', function (done) {
-      doTest(
-      'var a = 0;\n' +
+      doTest('var a = 0;\n' +
       'if (a == 0) {\n' +
       '  a++;\n' +
       '}\n' +
-      'a\n', 'int', 1
-      );
+      'a\n', 'int', 1);
       done();
     });
 
     it('else if 1', function (done) {
-      doTest(
-      'var a = 4;\n' +
+      doTest('var a = 4;\n' +
       'var b = "initial";\n' +
       'if (a == 0) {\n' +
       '  b = "hi";\n' +
@@ -274,14 +263,12 @@ describe('rainbows', function () {
       '} else {\n' +
       '  b = "bye";\n' +
       '}\n' +
-      'b\n', 'string', 'bye'
-      );
+      'b\n', 'string', 'bye');
       done();
     });
 
     it('else if 2', function (done) {
-      doTest(
-      'var a = 4;\n' +
+      doTest('var a = 4;\n' +
       'var b = "initial";\n' +
       'if (a == 0) {\n' +
       '  b = "hi";\n' +
@@ -290,16 +277,14 @@ describe('rainbows', function () {
       '} else {\n' +
       '  b = "bye";\n' +
       '}\n' +
-      'b\n', 'string', 'that'
-      );
+      'b\n', 'string', 'that');
       done();
     });
   });
 
   describe('examples', function () {
     it('fib 1', function (done) {
-      doTest(
-      '// Recursive fibonacci algorithm\n' +
+      doTest('// Recursive fibonacci algorithm\n' +
       'function fib(n) {\n' +
       '  if (n == 0) {\n' +
       '    return 0;\n' +
@@ -311,14 +296,12 @@ describe('rainbows', function () {
       '}\n' +
       'var output = fib(5);\n' +
       'var msg = "hello world";\n' +
-      'output\n', 'int', 5
-      );
+      'output\n', 'int', 5);
       done();
     });
 
     it('fib 2', function (done) {
-      doTest(
-      '// Recursive fibonacci algorithm\n' +
+      doTest('// Recursive fibonacci algorithm\n' +
       'function fib(n) {\n' +
       '  if (n == 0) {\n' +
       '    return 0;\n' +
@@ -330,20 +313,16 @@ describe('rainbows', function () {
       '}\n' +
       'var output = fib(2);\n' +
       'var msg = "hello world";\n' +
-      'msg\n', 'string', 'hello world'
-      );
+      'msg\n', 'string', 'hello world');
       done();
     });
     it('cache 1', function (done) {
-      doTest(
-      'var cache = {};\n' +
-      'cache', 'dict', null
-      );
+      doTest('var cache = {};\n' +
+      'cache', 'dict', null);
       done();
     });
     it('cache 2', function (done) {
-      doTest(
-      'var cache = {};\n' +
+      doTest('var cache = {};\n' +
       'function getLength(str) {\n' +
       '  try {\n' +
       '    return cache[str];\n' +
@@ -355,30 +334,25 @@ describe('rainbows', function () {
       '    return c;\n' +
       '  }\n' +
       '}\n' +
-      'getLength(\'hi\')', 'int', null
-      );
+      'getLength(\'hi\')', 'int', null);
       done();
     });
   });
 
   describe('builtins', function () {
     it('print 1', function (done) {
-      doTest(
-      'print(\'hello world\');\n' +
+      doTest('print(\'hello world\');\n' +
       'print(\'goodbye\');\n' +
-      '"foo"\n', 'string', 'foo'
-      );
+      '"foo"\n', 'string', 'foo');
       assert.strictEqual(logOutput[0], 'hello world');
       assert.strictEqual(logOutput[1], 'goodbye');
       done();
     });
 
     it('print 2', function (done) {
-      doTest(
-      'print(\'new\');\n' +
+      doTest('print(\'new\');\n' +
       'print(\'old\');\n' +
-      '"foo"\n', 'string', 'foo'
-      );
+      '"foo"\n', 'string', 'foo');
       assert.strictEqual(logOutput[0], 'new');
       assert.strictEqual(logOutput[1], 'old');
       done();

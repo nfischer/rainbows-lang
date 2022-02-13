@@ -1,6 +1,6 @@
 'use strict';
 
-/* globals $, window, tokenTypes, document, CodeMirror, Blob, ohm, typeInference, tinycolor, rbExamples, getComputedStyle, rbInterp, URL */
+/* globals $, tokenTypes, CodeMirror, ohm, typeInference, tinycolor, rbExamples, rbInterp */
 /* jshint unused: false */
 /* eslint no-unused-vars: 0 */
 var editor;
@@ -324,8 +324,10 @@ function changeTypeColor(newColor) {
     rbTypeList.forEach(function (tName) {
       if (tName === 'inferred type' || tName === type) return;
       // spin every other color's hue to compensate
-      setCssVariable(tName,
-          tinycolor(getCssVariable(tName)).spin(hueDiff).toHslString());
+      setCssVariable(
+          tName,
+          tinycolor(getCssVariable(tName)).spin(hueDiff).toHslString()
+);
     });
   }
 }
