@@ -16,7 +16,8 @@ function define(name, memberOf, typeInfo, lambda) {
   tokenTypes.builtin[name] = typeInfo;
 }
 
-define('print',
+define(
+    'print',
     null,
     {
       type: 'fun',
@@ -24,9 +25,11 @@ define('print',
       name: 'print',
       args: ['unknown'],
 },
-    console.log.bind(console));
+    console.log.bind(console)
+);
 
-define('bool',
+define(
+    'bool',
     null,
     {
       type: 'fun',
@@ -34,9 +37,11 @@ define('bool',
       name: 'bool',
       args: ['unknown'],
 },
-    Boolean);
+    Boolean
+);
 
-define('int',
+define(
+    'int',
     null,
     {
       type: 'fun',
@@ -44,9 +49,11 @@ define('int',
       name: 'int',
       args: ['unknown'],
 },
-    parseInt);
+    parseInt
+);
 
-define('float',
+define(
+    'float',
     null,
     {
       type: 'fun',
@@ -54,9 +61,11 @@ define('float',
       name: 'float',
       args: ['unknown'],
 },
-    parseFloat);
+    parseFloat
+);
 
-define('string',
+define(
+    'string',
     null,
     {
       type: 'fun',
@@ -64,7 +73,8 @@ define('string',
       name: 'string',
       args: ['unknown'],
 },
-    String);
+    String
+);
 
 // define('raw_input',
 //     { type: 'fun',
@@ -83,7 +93,8 @@ define('string',
 //
 // Methods
 //
-define('length',
+define(
+    'length',
     'string',
     {
       type: 'int',
@@ -91,9 +102,11 @@ define('length',
 },
     function () {
       return this.length;
-    });
+    }
+);
 
-define('length',
+define(
+    'length',
     'list',
     {
       type: 'int',
@@ -101,9 +114,11 @@ define('length',
 },
     function () {
       return this.length;
-    });
+    }
+);
 
-define('join',
+define(
+    'join',
     'list',
     {
       type: 'fun',
@@ -113,7 +128,8 @@ define('join',
 },
     function () {
       return this.join();
-    });
+    }
+);
 
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
