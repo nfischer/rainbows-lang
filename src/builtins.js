@@ -1,9 +1,8 @@
 // An implementation of rainbows builtins
+/* eslint block-scoped-var: 0 */
 
-var isNode = false;
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   // inside node
-  isNode = true;
   var tokenTypes = require('./types');
 }
 
@@ -19,42 +18,52 @@ function define(name, memberOf, typeInfo, lambda) {
 
 define('print',
     null,
-    { type: 'fun',
+    {
+      type: 'fun',
       ret: 'unknown',
       name: 'print',
-      args: ['unknown'] },
+      args: ['unknown'],
+},
     console.log.bind(console));
 
 define('bool',
     null,
-    { type: 'fun',
+    {
+      type: 'fun',
       ret: 'bool',
       name: 'bool',
-      args: ['unknown'] },
+      args: ['unknown'],
+},
     Boolean);
 
 define('int',
     null,
-    { type: 'fun',
+    {
+      type: 'fun',
       ret: 'int',
       name: 'int',
-      args: ['unknown'] },
+      args: ['unknown'],
+},
     parseInt);
 
 define('float',
     null,
-    { type: 'fun',
+    {
+      type: 'fun',
       ret: 'float',
       name: 'float',
-      args: ['unknown'] },
+      args: ['unknown'],
+},
     parseFloat);
 
 define('string',
     null,
-    { type: 'fun',
+    {
+      type: 'fun',
       ret: 'string',
       name: 'string',
-      args: ['unknown'] },
+      args: ['unknown'],
+},
     String);
 
 // define('raw_input',
@@ -76,30 +85,35 @@ define('string',
 //
 define('length',
     'string',
-    { type: 'int',
-      name: 'length', },
-    function() {
+    {
+      type: 'int',
+      name: 'length',
+},
+    function () {
       return this.length;
     });
 
 define('length',
     'list',
-    { type: 'int',
-      name: 'length', },
-    function() {
+    {
+      type: 'int',
+      name: 'length',
+},
+    function () {
       return this.length;
     });
 
 define('join',
     'list',
-    { type: 'fun',
+    {
+      type: 'fun',
       ret: 'string',
       name: 'join',
-      args: [] },
-    function() {
+      args: [],
+},
+    function () {
       return this.join();
     });
-
 
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

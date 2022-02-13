@@ -19,14 +19,16 @@ var script = shell.cat(fileName).toString();
 
 // Load in the specified types
 var typeFileName = fileName + 't';
+var typeContent;
 try {
-  var typeContent = fs.readFileSync(typeFileName);
+  typeContent = fs.readFileSync(typeFileName);
 } catch (e) {
   console.error('Expected ' + typeFileName + ' to exist');
   throw e;
 }
+var typeJson;
 try {
-  var typeJson = JSON.parse(typeContent);
+  typeJson = JSON.parse(typeContent);
 } catch (e) {
   console.error('Expected ' + typeFileName + ' to be unformatted JSON');
   throw e;

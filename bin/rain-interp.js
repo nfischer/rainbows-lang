@@ -23,11 +23,11 @@ tokenTypes.load(JSON.parse(fs.readFileSync(fileName + 't'))); // load JSON
 
 var typeMap = {
   'string': colors.red.bold,
-  'int':    colors.blue.bold,
-  'float':  colors.yellow.bold,
-  'bool':   colors.white.bold,
-  'list':   colors.green.bold,
-  'dict':   colors.magenta.bold,
+  'int': colors.blue.bold,
+  'float': colors.yellow.bold,
+  'bool': colors.white.bold,
+  'list': colors.green.bold,
+  'dict': colors.magenta.bold,
 };
 
 // Parse and infer types

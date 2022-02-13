@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 /* globals config, set, describe, it, beforeEach, before */
+
 'use strict';
 
 require('shelljs/global');
@@ -8,9 +9,10 @@ require('shelljs/global');
 // Note: to get debugging output, use test.log()
 
 var assert = require('assert');
+var ohm;
 /* istanbul ignore next */
 try {
-  var ohm = require('../src/ohm');
+  ohm = require('../src/ohm');
 } catch (e) {
   console.error(e);
   console.error();
@@ -51,7 +53,8 @@ describe('rainbows', function () {
   this.timeout(3000);
   before(function () {
     builtins.print = function () {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      var args = Array(arguments.length);
+      for (var _key = 0; _key < arguments.length; _key++) {
         args[_key] = arguments[_key];
       }
 
@@ -127,65 +130,65 @@ describe('rainbows', function () {
 
   describe('dict', function () {
     it('assignment', function (done) {
-      doTest("x = {}", 'dict', null);
+      doTest('x = {}', 'dict', null);
       done();
     });
 
     it('literal 1 member', function (done) {
-      doTest("({foo: true})", 'dict', null);
+      doTest('({foo: true})', 'dict', null);
       done();
     });
 
     it('literal 2 members', function (done) {
-      doTest("({foo: true, bar: 0})", 'dict', null);
+      doTest('({foo: true, bar: 0})', 'dict', null);
       done();
     });
   });
 
   describe('assignment', function () {
     it('simple', function (done) {
-      doTest("foo = 1", 'int', 1);
+      doTest('foo = 1', 'int', 1);
       done();
     });
     it('chain has value of second', function (done) {
-      doTest("foo = 1; foo = 2", 'int', 2);
+      doTest('foo = 1; foo = 2', 'int', 2);
       done();
     });
     it('post-fix increment', function (done) {
-      doTest("var foo = 1; foo++;", 'int', 1);
+      doTest('var foo = 1; foo++;', 'int', 1);
       done();
     });
     it('post-fix decrement', function (done) {
-      doTest("var foo = 1; foo--", 'int', 1);
+      doTest('var foo = 1; foo--', 'int', 1);
       done();
     });
     it('pre-fix increment', function (done) {
-      doTest("var foo = 1; ++foo", 'int', 2);
+      doTest('var foo = 1; ++foo', 'int', 2);
       done();
     });
     it('pre-fix decrement', function (done) {
-      doTest("var foo = 1; --foo", 'int', 0);
+      doTest('var foo = 1; --foo', 'int', 0);
       done();
     });
   });
 
   it('float + int', function (done) {
-    doTest("var foo = 7; 7.1 + foo", 'float', 14.1);
+    doTest('var foo = 7; 7.1 + foo', 'float', 14.1);
     done();
   });
 
   it('int + float', function (done) {
-    doTest("var foo = 7; foo + 7.1", 'float', 14.1);
+    doTest('var foo = 7; foo + 7.1', 'float', 14.1);
     done();
   });
 
   describe('list', function () {
     it('empty', function (done) {
-      doTest("x = []", 'list', null);
+      doTest('x = []', 'list', null);
       done();
     });
     it('values', function (done) {
-      doTest("[1, 2, 3]", 'list', null);
+      doTest('[1, 2, 3]', 'list', null);
       done();
     });
   });
@@ -206,7 +209,8 @@ describe('rainbows', function () {
       'var a = 0;\n' +
       'while (a < 3)\n' +
       '  a++;\n' +
-      'a\n' , 'int', 3);
+      'a\n', 'int', 3
+      );
       done();
     });
 
@@ -218,7 +222,8 @@ describe('rainbows', function () {
       '  a++;\n' +
       '  b--;\n' +
       '}\n' +
-      'b\n' , 'int', 5-3);
+      'b\n', 'int', 5 - 3
+      );
       done();
     });
   });
@@ -231,7 +236,8 @@ describe('rainbows', function () {
     '  a++;\n' +
     '  b--;\n' +
     '} while (a < 3);\n' +
-    'b\n' , 'int', 5-3);
+    'b\n', 'int', 5 - 3
+    );
     done();
   });
 
@@ -242,7 +248,8 @@ describe('rainbows', function () {
       'if (a > 0) {\n' +
       '  a++;\n' +
       '}\n' +
-      'a\n' , 'int', 2);
+      'a\n', 'int', 2
+      );
       done();
     });
     it('equal', function (done) {
@@ -251,7 +258,8 @@ describe('rainbows', function () {
       'if (a == 0) {\n' +
       '  a++;\n' +
       '}\n' +
-      'a\n' , 'int', 1);
+      'a\n', 'int', 1
+      );
       done();
     });
 
@@ -266,7 +274,8 @@ describe('rainbows', function () {
       '} else {\n' +
       '  b = "bye";\n' +
       '}\n' +
-      'b\n' , 'string', 'bye');
+      'b\n', 'string', 'bye'
+      );
       done();
     });
 
@@ -281,7 +290,8 @@ describe('rainbows', function () {
       '} else {\n' +
       '  b = "bye";\n' +
       '}\n' +
-      'b\n' , 'string', 'that');
+      'b\n', 'string', 'that'
+      );
       done();
     });
   });
@@ -301,7 +311,8 @@ describe('rainbows', function () {
       '}\n' +
       'var output = fib(5);\n' +
       'var msg = "hello world";\n' +
-      'output\n' , 'int', 5);
+      'output\n', 'int', 5
+      );
       done();
     });
 
@@ -319,13 +330,15 @@ describe('rainbows', function () {
       '}\n' +
       'var output = fib(2);\n' +
       'var msg = "hello world";\n' +
-      'msg\n' , 'string', 'hello world');
+      'msg\n', 'string', 'hello world'
+      );
       done();
     });
     it('cache 1', function (done) {
       doTest(
       'var cache = {};\n' +
-      'cache' , 'dict', null);
+      'cache', 'dict', null
+      );
       done();
     });
     it('cache 2', function (done) {
@@ -342,7 +355,8 @@ describe('rainbows', function () {
       '    return c;\n' +
       '  }\n' +
       '}\n' +
-      'getLength(\'hi\')', 'int', null);
+      'getLength(\'hi\')', 'int', null
+      );
       done();
     });
   });
@@ -352,7 +366,8 @@ describe('rainbows', function () {
       doTest(
       'print(\'hello world\');\n' +
       'print(\'goodbye\');\n' +
-      '"foo"\n' , 'string', 'foo');
+      '"foo"\n', 'string', 'foo'
+      );
       assert.strictEqual(logOutput[0], 'hello world');
       assert.strictEqual(logOutput[1], 'goodbye');
       done();
@@ -362,7 +377,8 @@ describe('rainbows', function () {
       doTest(
       'print(\'new\');\n' +
       'print(\'old\');\n' +
-      '"foo"\n' , 'string', 'foo');
+      '"foo"\n', 'string', 'foo'
+      );
       assert.strictEqual(logOutput[0], 'new');
       assert.strictEqual(logOutput[1], 'old');
       done();
@@ -430,4 +446,3 @@ describe('rainbows', function () {
 //   echo('\nSome tests failed');
 
 // exit(retStatus);
-

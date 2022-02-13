@@ -15,10 +15,12 @@ var Rainbows = ohm.grammar(contents);
 var s = Rainbows.createSemantics();
 s.addOperation(
   'ti()',
-  inference.typeInference);
+  inference.typeInference
+);
 s.addOperation(
   'rb()',
-  interp.rbInterp);
+  interp.rbInterp
+);
 
 module.exports.g = Rainbows;
 module.exports.s = s;

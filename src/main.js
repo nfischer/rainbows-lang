@@ -2,6 +2,7 @@
 
 /* globals $, window, tokenTypes, document, CodeMirror, Blob, ohm, typeInference, tinycolor, rbExamples, getComputedStyle, rbInterp, URL */
 /* jshint unused: false */
+/* eslint no-unused-vars: 0 */
 var editor;
 var jscode;
 
@@ -25,9 +26,9 @@ function addType(node, type, opts) {
                 (opts.underline ? 'arg-' : '') +
                 'type-\\S+(.*)$'
               );
-  var m = node.attr('class');
-  m = m && m.match(regex);
-  if (m) node.attr('class', m[1] + ' ' + m[2]);
+  var match = node.attr('class');
+  match = match && match.match(regex);
+  if (match) node.attr('class', match[1] + ' ' + match[2]);
   node.addClass('rb-' + (opts.underline ? 'arg-' : '') + 'type-' + type);
 
   // Add hint info
@@ -49,7 +50,7 @@ function domNodeToLineNumber(node) {
   if (!x) return null;
   try {
     x.parent().children('.CodeMirror-gutter-wrapper').each(function () {
-      var ret = parseInt($(this).text());
+      var ret = parseInt($(this).text(), 10);
       if (ret.toString() === $(this).text()) throw ret;
     });
   } catch (e) {
@@ -60,7 +61,7 @@ function domNodeToLineNumber(node) {
 
 function lineNumberToDomNode(num) {
   var line = $('#rainbows-editor .CodeMirror-gutter-wrapper').filter(function (x, y) {
-    return $(y).text() == num;
+    return $(y).text() === num;
   }).parent().children().next().children();
 
   return line;
@@ -89,7 +90,7 @@ function underlineArguments(funName, line, argTypes) {
     } else if (k >= 0 && name.match(/[{([]\s*/)) {
       level++;
       addType(node, argTypes[k], { underline: true });
-    } else if (name.match(/[})\[]\s*/)) {
+    } else if (name.match(/[})[]\s*/)) {
       level--;
       addType(node, argTypes[k], { underline: true });
     } else if (k >= 0) {
@@ -123,7 +124,7 @@ function appendTypeClass(originalClassName) {
       },
       '.cm-number': function (x) {
         return x.match(/\./) ? 'float' : 'int';
-      }
+      },
     };
     var obj = tokenTypes.getObj(output);
     if (literalsMap[originalClassName]) {
@@ -175,7 +176,6 @@ function main() {
     var match2 = contents.match(/^\s*return\s+(.*)\s*;/);
     if (match1) {
       funName = [match1[1]].concat(funName);
-      return;
     } else if (match2) {
       underlineReturn(tokenTypes.getVal(funName[0]), lineNumberToDomNode(editor.getLineNumber(lineHandle) + 1));
     }
@@ -187,10 +187,11 @@ function main() {
     setTimeout(function () {
       var val = interp();
       var result;
-      if (val === null || val === undefined)
+      if (val === null || val === undefined) {
         result = '[no expression value]';
-      else
+      } else {
         result = JSON.stringify(val);
+      }
       showOutput(result, resultType);
     }, 30);
   } else {
@@ -202,13 +203,13 @@ $(document).ready(function () {
   var code = $('.codemirror-textarea')[0];
   editor = CodeMirror.fromTextArea(code, {
     mode: 'rainbows',
-    lineNumbers: true
+    lineNumbers: true,
   });
   var output = $('.codemirror-textarea')[1];
   jscode = CodeMirror.fromTextArea(output, {
     mode: false, // don't actually parse this text
     readOnly: true,
-    lineNumbers: true
+    lineNumbers: true,
   });
 
   editor.on('change', function () {
@@ -242,8 +243,9 @@ $(document).ready(function () {
     var oldToken = window.currentToken;
     var newToken = getWordUnderCursor().match(/^[a-zA-Z_][a-zA-Z0-9_]*$/);
     newToken = newToken && newToken[0].trim();
-    if (reservedWords.includes(newToken))
+    if (reservedWords.includes(newToken)) {
       newToken = null;
+    }
     if (!oldToken && newToken) {
       // Update to show the token
       $('.color-changer > #msg')
@@ -359,9 +361,9 @@ var editorError = (function () {
     hide: function () {
       node.text('');
       if (widget) widget.clear();
-    }
+    },
   };
-})();
+}());
 
 // TODO(nate): get this div to display
 outputError = (function () {
@@ -378,9 +380,9 @@ outputError = (function () {
     hide: function () {
       node.text('');
       if (widget) widget.clear();
-    }
+    },
   };
-})();
+}());
 
 // This accepts a javascript expression and returns a string denoting its type
 function getJsType(expr) {
@@ -393,14 +395,15 @@ function getJsType(expr) {
       editorError.hide();
       return ret;
     } catch (e) {
-      if (e.constructor.name === 'InferenceError')
+      if (e.constructor.name === 'InferenceError') {
         editorError.show(e);
-      else
+      } else {
         throw e;
+      }
       return null;
     }
   }
-  //} else {
+  // } else {
   //  var timeout;
   //  editor.on('keyHandled', function () {
   //    if(timeout) {
@@ -453,15 +456,16 @@ $(document).ready(function () {
   });
   var node = {}; // hack: use an object here, because of scoping issues
   /* function updateSlider */
-  updateSlider = function updateSlider(event, ui) {
+  updateSlider = function (event, ui) {
     var myType = rbTypeList[ui.value];
     node.value.css('background', rbColorList[ui.value].css('color'));
 
     // Remember the user's type selection
-    if (myType === DEFAULT_TYPE)
+    if (myType === DEFAULT_TYPE) {
       delete tokenTypes.selected[window.currentToken];
-    else
-      tokenTypes.setVal(window.currentToken, myType, {manual: true});
+    } else {
+      tokenTypes.setVal(window.currentToken, myType, { manual: true });
+    }
 
     addType(node.value, myType); // show the link hint for the slider UI
     addType($('#cur-token'), myType); // color the token
@@ -498,4 +502,3 @@ function saveFile() {
   a.download = 'sample.raint';
   a.click();
 }
-

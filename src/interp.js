@@ -1,12 +1,15 @@
 'use strict';
 
-/*jshint unused:false*/
+/* jshint unused:false*/
+/* eslint no-unused-vars: 0, block-scoped-var: 0 */
 
 function _toConsumableArray(arr) {
   if (Array.isArray(arr)) {
-    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+    var arr2 = Array(arr.length);
+    for (var i = 0; i < arr.length; i++) {
       arr2[i] = arr[i];
-    }return arr2;
+    }
+    return arr2;
   } else {
     return Array.from(arr);
   }
@@ -32,7 +35,14 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 
   var env;
   function cast(type, value) {
-    if (type === 'string') return value.toString();else if (type === 'int') return parseInt(value);else if (type === 'float') return parseFloat(value);else return value;
+    if (type === 'string') {
+      return value.toString();
+    } else if (type === 'int') {
+      return parseInt(value, 10);
+    } else if (type === 'float') {
+      return parseFloat(value);
+    }
+    return value;
   }
   function truthy(cond) {
     if (typeof cond !== 'boolean') throw new RuntimeError('Condition must be of type `bool`');
@@ -44,9 +54,9 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     if (a === 'dict' || b === 'dict') throw new RuntimeError('cannot add dicts');
     if (a === 'list' || b === 'list') throw new RuntimeError('cannot add lists');
     var ret;
-    ['string', 'float', 'int'].forEach(function (x) {
+    ['string', 'float', 'int'].forEach(function (type) {
       if (ret) return;
-      if (a === x || b === x) ret = x;
+      if (a === type || b === type) ret = type;
     });
     return ret || 'unknown';
   }
@@ -54,7 +64,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   rbInterp = {
     Program: function (x, y) {
       env = {}; // clear it out
-      var lines = y.rb();return lines[lines.length - 1];
+      var lines = y.rb(); return lines[lines.length - 1];
     },
     SourceElement: function (x) {
       return x.rb();
@@ -116,13 +126,13 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return !y.rb();
     },
     decimalLiteral_integerOnly: function (x, y) {
-      return parseInt(this.sourceString);
+      return parseInt(this.sourceString, 10);
     },
     decimalLiteral_bothParts: function (x, y, z, w) {
       return parseFloat(this.sourceString);
     },
     Block: function (a, b, c) {
-      b.rb();return null;
+      b.rb(); return null;
     },
     FunctionDeclaration: function (a, id, c, params, e, f, myBody, h) {
       var argList = params.sourceString.split(/,\s*/);
@@ -130,7 +140,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       if (env[idName] !== undefined) throw new RuntimeError('redefining ' + idName + ' is not allowed');
       env[idName] = {
         args: argList,
-        body: myBody
+        body: myBody,
       };
       return null;
     },
@@ -174,19 +184,19 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       return x.rb();
     },
     TryStatement_tryCatch: function (x, y, z) {
-      y.rb();z.rb();
+      y.rb(); z.rb();
       return null;
     },
     TryStatement_tryFinally: function (x, y, z) {
-      y.rb();z.rb();
+      y.rb(); z.rb();
       return null;
     },
     TryStatement_tryCatchFinally: function (x, y, z, w) {
-      y.rb();z.rb();w.rb();
+      y.rb(); z.rb(); w.rb();
       return null;
     },
     Catch: function (a, b, c, d, e) {
-      c.rb();e.rb();
+      c.rb(); e.rb();
       return null;
     },
     Finally: function (a, b) {
@@ -289,14 +299,22 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
         }
         ret = funDecl.body.rb(); // execute it with the new environment
         env = oldEnv;
-      } else if ((funDecl = builtins[x.sourceString]) !== undefined) {
+      } else if (builtins[x.sourceString] !== undefined) {
+        funDecl = builtins[x.sourceString];
         ret = funDecl.apply(undefined, _toConsumableArray(funInv.args));
       } else {
         throw new RuntimeError('undefined function');
       }
 
       var type = x.ti();
-      if (type === 'string') return ret.toString();else if (type === 'int') return parseInt(ret);else if (type === 'float') return parseFloat(ret);else return ret;
+      if (type === 'string') {
+        return ret.toString();
+      } else if (type === 'int') {
+        return parseInt(ret, 10);
+      } else if (type === 'float') {
+        return parseFloat(ret);
+      }
+      return ret;
     },
     Arguments: function (a, b, c) {
       return b.rb();
@@ -331,7 +349,7 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     PropertyAssignment_simple: function (a, b, c) {
       return {
         key: a.sourceString,
-        val: c.rb()
+        val: c.rb(),
       };
     },
     ObjectLiteral_trailingComma: function (a, b, c, d) {
@@ -340,11 +358,10 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
         ret[x.key] = x.val;
       });
       return ret;
-    }
+    },
   };
-})();
+}());
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   module.exports.rbInterp = rbInterp;
 }
-
