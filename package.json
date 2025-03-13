@@ -36,7 +36,7 @@
   "homepage": "https://github.com/nfischer/rainbows-lang#readme",
   "dependencies": {
     "colors": "^1.4.0",
-    "shelljs": "^0.8.5"
+    "shelljs": "^0.9.1"
   },
   "devDependencies": {
     "deploy-gh": "^0.2.1",
